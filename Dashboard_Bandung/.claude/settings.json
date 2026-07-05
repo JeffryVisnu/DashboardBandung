@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"d:/Kuliah Telkom University/Semester 6/MAGANGGGGGGG/Dashboard_Bandung/src/app/dashboard/[slug]\")",
+      "Skill(run)",
+      "Skill(run:*)",
+      "PowerShell($proc = Start-Process -FilePath \"npm\" -ArgumentList \"run\",\"dev\" -WorkingDirectory \"d:\\\\Kuliah Telkom University\\\\Semester 6\\\\MAGANGGGGGGG\\\\Dashboard_Bandung\" -PassThru -WindowStyle Hidden; $proc.Id | Out-File \"$env:TEMP\\\\dashboard_dev.pid\" -Encoding utf8; Write-Host \"PID: $\\($proc.Id\\)\")",
+      "Bash(timeout 40 bash -c 'until curl -sf http://localhost:3000 >/dev/null 2>&1; do sleep 2; done && echo \"SERVER UP\"')",
+      "Bash(chromium-cli --session bandung)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000/dashboard/kependudukan)",
+      "Bash(ls \"d:/Kuliah Telkom University/Semester 6/MAGANGGGGGGG/\")",
+      "Read(//d/Kuliah Telkom University/Semester 6/MAGANGGGGGGG/**)",
+      "PowerShell($proc = Start-Process -FilePath \"npm\" -ArgumentList \"run\",\"dev\" -WorkingDirectory \"d:\\\\Kuliah Telkom University\\\\Semester 6\\\\MAGANGGGGGGG\\\\Backend_Bandung\" -PassThru -WindowStyle Hidden; $proc.Id | Out-File \"$env:TEMP\\\\backend_dev.pid\" -Encoding utf8; Write-Host \"PID: $\\($proc.Id\\)\")",
+      "Bash(timeout 15 bash -c 'until curl -sf http://localhost:4000/health >/dev/null 2>&1; do sleep 1; done && echo \"BE UP\"')",
+      "Bash(curl -s http://localhost:4000/health)",
+      "Bash(curl -s http://localhost:4000/api/categories)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const j=JSON.parse\\(d\\); j.forEach\\(c=>console.log\\(c.slug, '-', c.name, '\\('+c.datasetCount+' dataset\\)'\\)\\)\")",
+      "Bash(curl -s http://localhost:4000/api/categories/kependudukan/datasets)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const j=JSON.parse\\(d\\); j.forEach\\(ds=>console.log\\('-',ds.name\\)\\)\")",
+      "Bash(curl -s http://localhost:4000/api/categories/invalid/datasets)",
+      "Bash(curl -s http://localhost:3000/dashboard/kesehatan)"
+    ],
+    "additionalDirectories": [
+      "d:\\Kuliah Telkom University\\Semester 6\\MAGANGGGGGGG\\Dashboard_Bandung\\src\\app\\dashboard",
+      "d:\\Kuliah Telkom University\\Semester 6\\MAGANGGGGGGG\\Backend_Bandung"
+    ]
+  }
+}

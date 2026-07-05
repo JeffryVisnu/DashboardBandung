@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/isScreenApi/,0' \"Dashboard Bandung.dc.html\")",
+      "Bash(awk '/isScreenDetail/,/<\\\\/sc-if>/' \"Dashboard Bandung.dc.html\")",
+      "Bash(cp /tmp/check_schema.mjs ./check_schema.mjs)",
+      "Bash(node check_schema.mjs)",
+      "Bash(rm -f check_schema.mjs)",
+      "Bash(npx tsc *)",
+      "Bash(nslookup aws-1-ap-southeast-1.pooler.supabase.com)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" http://localhost:4000/api/categories/pendidikan/summary)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" http://localhost:4000/health)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 4000 -ErrorAction SilentlyContinue)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s http://localhost:4000/api/categories/pendidikan/summary)",
+      "Bash(curl -s http://localhost:4000/api/categories/pendidikan/sekolah-per-kecamatan)",
+      "Bash(curl -s http://localhost:4000/api/categories/pendidikan/guru-siswa-per-kecamatan)",
+      "Bash(curl -s http://localhost:4000/api/categories/pendidikan/siswa-gender)",
+      "Bash(curl -s \"http://localhost:4000/api/categories/pendidikan/sebaran-sekolah?status=NEGERI\")",
+      "Bash(cat /tmp/bedev.log)",
+      "Bash(node -e \"require\\('dns'\\).lookup\\('aws-1-ap-southeast-1.pooler.supabase.com', \\(e,a\\)=>console.log\\(e||a\\)\\)\")",
+      "Bash(tail -10 /tmp/bedev.log)",
+      "Bash(grep -o \"Memuat data\\\\|Jumlah Sekolah SMP\\\\|Loading data\" /tmp/pend.html | head -5)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" http://localhost:4000/api/v1/pendidikan/summary)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" -H \"Authorization: Bearer salah_banget\" http://localhost:4000/api/v1/pendidikan/summary)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" -H \"Authorization: Bearer bdg_live_73c568481e1951b77731229db8795d2f2d7f7dc4\" http://localhost:4000/api/v1/pendidikan/summary)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"label\":\"test-frontend\"}' http://localhost:4000/api/categories/api-keys)",
+      "Bash(grep -o \"pendidikan/summary\\\\|pendidikan/trend\\\\|Buat Kunci Baru\\\\|Generate New Key\" /tmp/dataapi.html | sort -u)",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"label\":\"dashboard-web-user\"}' http://localhost:4000/api/categories/api-keys)"
+    ]
+  }
+}

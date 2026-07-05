@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/*
+  Palet resmi Dashboard Bandung — DISKOMINFO Kota Bandung
+  Sumber: logo resmi Diskominfo (biru + oranye) + emblem Kota Bandung (biru, kuning/gold, hijau)
+  Referensi: README.txt §Design Tokens
+*/
+:root {
+  --c-blue: #1F5AA8;
+  --c-blue-dark: #0F2F57;
+  --c-blue-light: #E8F0FA;
+  --c-orange: #E8821E;
+  --c-orange-light: #FDEEDD;
+  --c-gold: #F0B429;
+  --c-gold-light: #FDF3DA;
+  --c-green: #1D8348;
+  --c-green-light: #E7F6ED;
+  --c-red: #C0392B;
+  --c-red-light: #FBEAE8;
+  --c-ink: #12202E;
+  --c-ink2: #4C5D6B;
+  --c-ink3: #8A99A8;
+  --c-border: #DDE3EA;
+  --c-surface: #F4F6F9;
+  --c-white: #ffffff;
+}
+
+@theme {
+  --color-bd-blue: var(--c-blue);
+  --color-bd-blue-dark: var(--c-blue-dark);
+  --color-bd-blue-light: var(--c-blue-light);
+  --color-bd-orange: var(--c-orange);
+  --color-bd-orange-light: var(--c-orange-light);
+  --color-bd-gold: var(--c-gold);
+  --color-bd-gold-light: var(--c-gold-light);
+  --color-bd-green: var(--c-green);
+  --color-bd-green-light: var(--c-green-light);
+  --color-bd-red: var(--c-red);
+  --color-bd-red-light: var(--c-red-light);
+  --color-bd-ink: var(--c-ink);
+  --color-bd-ink2: var(--c-ink2);
+  --color-bd-ink3: var(--c-ink3);
+  --color-bd-border: var(--c-border);
+  --color-bd-surface: var(--c-surface);
+  --font-sans: 'Montserrat', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+/* Scrollbar tipis untuk tabel */
+.thin-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+.thin-scroll::-webkit-scrollbar-track { background: var(--c-surface); }
+.thin-scroll::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}
+
