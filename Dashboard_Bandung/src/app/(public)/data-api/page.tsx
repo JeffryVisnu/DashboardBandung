@@ -2,15 +2,57 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { I18N, SECTORS } from "@/lib/placeholder-data";
+import { I18N } from "@/lib/placeholder-data";
 import { API_DOCS } from "@/lib/api-docs-data";
-import { useLang } from "@/lib/lang-context";
+import { useVisibleSectors } from "@/lib/useVisibleSectors";
+import { useAllSectorDatasets, type SectorDataset } from "@/lib/useAllSectorDatasets";
 import type { ApiEndpointDoc } from "@/types/dataset";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const s = I18N;
 
-function EndpointCard({ endpoint, lang }: { endpoint: ApiEndpointDoc; lang: "id" | "en" }) {
-  const s = I18N[lang];
+/** Endpoint 1 dashboard tunggal (mis. "Jumlah SMP" saja, terpisah dari "Jumlah SD") — dibuat
+ * otomatis untuk SETIAP dashboard yang ada di database sekarang. Begitu admin menambah dashboard
+ * baru lewat panel admin, entri dokumentasi baru langsung muncul di sini tanpa perlu kode baru,
+ * karena daftarnya diambil langsung dari data yang sungguhan sedang aktif. */
+function buildSingleDashboardEndpoint(dashboard: SectorDataset): ApiEndpointDoc {
+  const example = {
+    data: {
+      id: dashboard.id,
+      sectorId: dashboard.sectorId,
+      title: dashboard.title,
+      slug: dashboard.slug,
+      iframeUrl: dashboard.iframeUrl,
+      width: dashboard.width,
+      height: dashboard.height,
+      views: dashboard.views,
+    },
+    meta: { source: "Diskominfo Kota Bandung", generatedAt: new Date().toISOString() },
+  };
+  return {
+    method: "GET",
+    path: `/v1/${dashboard.sectorId}/${dashboard.slug}`,
+    summary: `Dashboard: ${dashboard.title}`,
+    description: `Detail dashboard "${dashboard.title}" saja — judul, link embed, ukuran, dan jumlah dilihat.`,
+    exampleResponse: JSON.stringify(example, null, 2),
+  };
+}
+
+const SECTORS_ENDPOINT: ApiEndpointDoc = {
+  method: "GET",
+  path: "/v1/sectors",
+  summary: "Daftar Semua Sektor",
+  description:
+    "Daftar seluruh sektor Kota Bandung beserta kode, warna, dan deskripsinya. Otomatis bertambah begitu admin menambah sektor baru lewat panel admin.",
+  exampleResponse: `{
+  "data": [
+    { "id": "pendidikan", "code": "PDK", "name": "Pendidikan", "desc": "...", "color": "#F0B429", "tint": "#FDF3DA", "sortOrder": 4 }
+  ],
+  "meta": { "source": "Diskominfo Kota Bandung", "generatedAt": "2026-07-29T06:00:00.000Z" }
+}`,
+};
+
+function EndpointCard({ endpoint }: { endpoint: ApiEndpointDoc }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,13 +65,13 @@ function EndpointCard({ endpoint, lang }: { endpoint: ApiEndpointDoc; lang: "id"
           {endpoint.method}
         </span>
         <span className="font-mono text-[12.5px] font-semibold text-bd-ink shrink-0">{endpoint.path}</span>
-        <span className="text-[12.5px] font-medium text-bd-ink2 truncate flex-1">{endpoint.summary[lang]}</span>
+        <span className="text-[12.5px] font-medium text-bd-ink2 truncate flex-1">{endpoint.summary}</span>
         <span className={`text-bd-ink3 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>&darr;</span>
       </button>
 
       {open && (
         <div className="px-4 pb-4 pt-1 border-t border-bd-border bg-bd-surface/40">
-          <p className="text-[12.5px] font-medium text-bd-ink2 leading-relaxed my-3">{endpoint.description[lang]}</p>
+          <p className="text-[12.5px] font-medium text-bd-ink2 leading-relaxed my-3">{endpoint.description}</p>
 
           {endpoint.queryParams && endpoint.queryParams.length > 0 && (
             <div className="mb-4">
@@ -41,7 +83,7 @@ function EndpointCard({ endpoint, lang }: { endpoint: ApiEndpointDoc; lang: "id"
                     <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded shrink-0 ${p.required ? "bg-bd-gold-light text-bd-orange" : "bg-[#F4F6F9] text-bd-ink3"}`}>
                       {p.required ? s.api_param_required : s.api_param_optional}
                     </span>
-                    <span className="text-bd-ink2 font-medium">{p.desc[lang]}</span>
+                    <span className="text-bd-ink2 font-medium">{p.desc}</span>
                   </div>
                 ))}
               </div>
@@ -58,57 +100,66 @@ function EndpointCard({ endpoint, lang }: { endpoint: ApiEndpointDoc; lang: "id"
   );
 }
 
+function matchesQuery(ep: ApiEndpointDoc, q: string): boolean {
+  return (
+    q === "" ||
+    ep.path.toLowerCase().includes(q) ||
+    ep.summary.toLowerCase().includes(q) ||
+    ep.description.toLowerCase().includes(q)
+  );
+}
+
 export default function DataApiPage() {
-  const { lang } = useLang();
-  const s = I18N[lang];
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const sectors = useVisibleSectors();
+  const sectorDashboards = useAllSectorDatasets();
   const [activeSector, setActiveSector] = useState<string>("semua");
   const [query, setQuery] = useState("");
 
-  async function generateKey() {
-    setGenerating(true);
-    try {
-      const res = await fetch(`${API_BASE}/categories/api-keys`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ label: "dashboard-web-user" }),
-      });
-      const json = await res.json();
-      setApiKey(json.key ?? null);
-    } catch {
-      setApiKey(null);
-    } finally {
-      setGenerating(false);
-    }
-  }
-
-  function copyKey() {
-    if (!apiKey) return;
-    navigator.clipboard.writeText(apiKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
   const q = query.trim().toLowerCase();
 
+  // Struktur: per sektor -> per dashboard (mis. "Jumlah SMP", "Jumlah SD") -> endpoint-nya
+  // sendiri (1 endpoint generik "detail dashboard ini" + endpoint bespoke yang ditandai untuk
+  // dashboard itu, mis. summary/trend/dsb.). Semua otomatis mengikuti dashboard yang sungguhan
+  // aktif sekarang — sektor/dashboard baru dari admin langsung punya bagian sendiri di sini, dan
+  // begitu sektor/dashboard-nya dihapus admin, bagian & endpoint terkait langsung hilang juga
+  // (endpoint bespoke yang slug-nya sudah tidak ada di dashboard aktif dibuang, bukan disimpan
+  // sebagai "Lainnya").
+  const sectorsWithGroups = useMemo(() => {
+    return sectors.map((sector) => {
+      const dashboards = sectorDashboards?.[sector.id] ?? [];
+      const bespokeAll = API_DOCS.find((d) => d.sectorId === sector.id)?.endpoints ?? [];
+      const taggedSlugs = new Set(dashboards.map((d) => d.slug));
+
+      const groups = dashboards.map((dashboard) => ({
+        dashboard,
+        endpoints: [
+          buildSingleDashboardEndpoint(dashboard),
+          ...bespokeAll.filter((ep) => ep.dashboardSlug === dashboard.slug),
+        ],
+      }));
+
+      const activeBespokeCount = bespokeAll.filter((ep) => ep.dashboardSlug && taggedSlugs.has(ep.dashboardSlug)).length;
+      const endpointCount = groups.reduce((sum, g) => sum + g.endpoints.length, 0);
+
+      return { sector, groups, hasAny: activeBespokeCount > 0, endpointCount };
+    });
+  }, [sectors, sectorDashboards]);
+
   const sectionsToShow = useMemo(() => {
-    const docsToShow = activeSector === "semua" ? API_DOCS : API_DOCS.filter((d) => d.sectorId === activeSector);
-    return docsToShow
-      .map((docs) => {
-        const sector = SECTORS.find((sec) => sec.id === docs.sectorId);
-        const endpoints = docs.endpoints.filter(
-          (ep) =>
-            q === "" ||
-            ep.path.toLowerCase().includes(q) ||
-            ep.summary[lang].toLowerCase().includes(q) ||
-            ep.description[lang].toLowerCase().includes(q)
-        );
-        return { sector, endpoints, hasAny: docs.endpoints.length > 0 };
+    const toShow = activeSector === "semua" ? sectorsWithGroups : sectorsWithGroups.filter((sec) => sec.sector.id === activeSector);
+    return toShow
+      .map(({ sector, groups, hasAny }) => {
+        const filteredGroups = groups
+          .map((g) => ({ ...g, endpoints: g.endpoints.filter((ep) => matchesQuery(ep, q)) }))
+          .filter((g) => q === "" || g.endpoints.length > 0);
+        return { sector, groups: filteredGroups, hasAny };
       })
-      .filter((section) => section.sector && (q === "" || section.endpoints.length > 0));
-  }, [activeSector, q, lang]);
+      .filter((section) => q === "" || section.groups.length > 0);
+  }, [sectorsWithGroups, activeSector, q]);
+
+  const showGeneralSection =
+    activeSector === "semua" &&
+    (q === "" || [SECTORS_ENDPOINT.path, SECTORS_ENDPOINT.summary, SECTORS_ENDPOINT.description].some((t) => t.toLowerCase().includes(q)));
 
   return (
     <main className="pb-24 bg-white">
@@ -131,36 +182,20 @@ export default function DataApiPage() {
         <div className="border border-bd-border rounded-2xl p-5.5">
           <div className="text-[14px] font-bold text-bd-ink mb-1.5">{s.api_key_title}</div>
           <div className="text-[12.5px] font-normal text-bd-ink2 leading-relaxed mb-4">{s.api_key_desc}</div>
-
-          {apiKey ? (
-            <div className="flex items-center gap-2.5 bg-bd-surface border border-bd-border rounded-lg px-3.5 py-3">
-              <span className="flex-1 font-mono text-[13px] text-bd-ink overflow-hidden text-ellipsis whitespace-nowrap">
-                {apiKey}
-              </span>
-              <button
-                onClick={copyKey}
-                className="bg-bd-blue border-none text-white font-bold px-3 py-1.5 rounded-md cursor-pointer text-[11.5px] whitespace-nowrap"
-              >
-                {copied ? (lang === "id" ? "Tersalin!" : "Copied!") : s.api_copy_btn}
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={generateKey}
-              disabled={generating}
-              className="bg-bd-blue border-none text-white font-bold px-4.5 py-2.5 rounded-lg cursor-pointer text-[12.5px] disabled:opacity-60"
-            >
-              {generating ? (lang === "id" ? "Membuat…" : "Generating…") : s.api_generate_btn}
-            </button>
-          )}
+          <Link
+            href="/data-api/ajukan-akses"
+            className="inline-block bg-bd-blue border-none text-white font-bold px-4.5 py-2.5 rounded-lg cursor-pointer text-[12.5px] no-underline"
+          >
+            {s.api_generate_btn}
+          </Link>
         </div>
 
         <div className="border border-bd-border rounded-2xl p-5.5">
           <div className="text-[14px] font-bold text-bd-ink mb-3.5">{s.api_quickstart_title}</div>
           <div className="bg-bd-blue-dark rounded-[10px] px-4.5 py-4 overflow-x-auto">
             <pre className="m-0 font-mono text-[11.5px] leading-relaxed text-[#CFE3F7] whitespace-pre">
-{`curl ${API_BASE}/v1/pendidikan/summary \\
-  -H "Authorization: Bearer ${apiKey ?? "bdg_live_xxxxxxxxxxxxxxxxxxxx"}"`}
+{`curl ${API_BASE}/v1/pendidikan/jumlah-smp/summary \\
+  -H "Authorization: Bearer bdg_live_xxxxxxxxxxxxxxxxxxxx"`}
             </pre>
           </div>
         </div>
@@ -192,42 +227,50 @@ export default function DataApiPage() {
             >
               {s.api_all_sectors}
             </button>
-            {SECTORS.map((sec) => {
-              const docs = API_DOCS.find((d) => d.sectorId === sec.id);
-              const count = docs?.endpoints.length ?? 0;
-              return (
-                <button
-                  key={sec.id}
-                  onClick={() => setActiveSector(sec.id)}
-                  className={`text-left px-4 py-2.5 rounded-xl text-[13px] font-bold transition-colors flex items-center justify-between gap-2 ${
-                    activeSector === sec.id ? "bg-bd-blue-light text-bd-blue" : "text-bd-ink2 hover:bg-bd-surface"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: sec.color }}></span>
-                    {sec.name[lang]}
-                  </span>
-                  <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded shrink-0 ${count > 0 ? "bg-bd-green-light text-bd-green" : "bg-[#F4F6F9] text-bd-ink3"}`}>
-                    {count > 0 ? count : "—"}
-                  </span>
-                </button>
-              );
-            })}
+            {sectorsWithGroups.map(({ sector, endpointCount }) => (
+              <button
+                key={sector.id}
+                onClick={() => setActiveSector(sector.id)}
+                className={`text-left px-4 py-2.5 rounded-xl text-[13px] font-bold transition-colors flex items-center justify-between gap-2 ${
+                  activeSector === sector.id ? "bg-bd-blue-light text-bd-blue" : "text-bd-ink2 hover:bg-bd-surface"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: sector.color }}></span>
+                  {sector.name}
+                </span>
+                <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded shrink-0 bg-bd-green-light text-bd-green">
+                  {endpointCount}
+                </span>
+              </button>
+            ))}
           </aside>
 
           {/* Content */}
           <div className="flex-1 min-w-0 flex flex-col gap-10">
-            {sectionsToShow.length === 0 && (
+            {sectionsToShow.length === 0 && !showGeneralSection && (
               <p className="text-[14px] font-medium text-bd-ink2 py-10 text-center">{s.api_no_results}</p>
             )}
 
-            {sectionsToShow.map(({ sector, endpoints, hasAny }) => (
-              <div key={sector!.id}>
+            {showGeneralSection && (
+              <div>
                 <div className="flex items-center gap-3 mb-4 pb-3 border-b border-bd-border">
-                  <div className="font-extrabold text-[10px] px-2.5 py-1 rounded-md" style={{ backgroundColor: sector!.tint, color: sector!.color }}>
-                    {sector!.code}
+                  <div className="font-extrabold text-[10px] px-2.5 py-1 rounded-md bg-[#F4F6F9] text-bd-ink2">UMUM</div>
+                  <h2 className="text-[16px] font-extrabold text-bd-ink">Lintas Sektor</h2>
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  <EndpointCard endpoint={SECTORS_ENDPOINT} />
+                </div>
+              </div>
+            )}
+
+            {sectionsToShow.map(({ sector, groups, hasAny }) => (
+              <div key={sector.id}>
+                <div className="flex items-center gap-3 mb-5 pb-3 border-b border-bd-border">
+                  <div className="font-extrabold text-[10px] px-2.5 py-1 rounded-md" style={{ backgroundColor: sector.tint, color: sector.color }}>
+                    {sector.code}
                   </div>
-                  <h2 className="text-[16px] font-extrabold text-bd-ink">{sector!.name[lang]}</h2>
+                  <h2 className="text-[16px] font-extrabold text-bd-ink">{sector.name}</h2>
                   <span
                     className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
                       hasAny ? "bg-bd-green-light text-bd-green" : "bg-[#F4F6F9] text-bd-ink3"
@@ -237,31 +280,28 @@ export default function DataApiPage() {
                   </span>
                 </div>
 
-                {endpoints.length === 0 ? (
+                {groups.length === 0 && (
                   <p className="text-[13px] font-medium text-bd-ink2 py-2">{s.api_no_endpoints_yet}</p>
-                ) : (
-                  <div className="flex flex-col gap-2.5">
-                    {endpoints.map((ep) => (
-                      <EndpointCard key={ep.path} endpoint={ep} lang={lang} />
-                    ))}
-                  </div>
                 )}
+
+                <div className="flex flex-col gap-6">
+                  {groups.map(({ dashboard, endpoints }) => (
+                    <div key={dashboard.id}>
+                      <h3 className="text-[13px] font-extrabold text-bd-ink2 uppercase tracking-wide mb-2.5">
+                        {dashboard.title}
+                      </h3>
+                      <div className="flex flex-col gap-2.5">
+                        {endpoints.map((ep) => (
+                          <EndpointCard key={ep.path} endpoint={ep} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Rate limit + docs */}
-      <section className="max-w-350 mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-bd-surface rounded-2xl p-5">
-          <div className="text-[13.5px] font-bold text-bd-ink mb-1.5">{s.api_rate_title}</div>
-          <div className="text-[12.5px] font-normal text-bd-ink2 leading-relaxed">{s.api_rate_desc}</div>
-        </div>
-
-        <a href="#" className="flex items-center justify-center gap-2 font-bold text-[13px] bg-bd-blue text-white px-5.5 py-3.5 rounded-lg no-underline">
-          {s.api_docs_btn} &rarr;
-        </a>
       </section>
     </main>
   );

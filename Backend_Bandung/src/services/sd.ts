@@ -1,27 +1,36 @@
 import { pool } from "../db.js";
 
+// Sama seperti pendidikan.ts (SMP), tapi untuk data SD — tabel sd_sekolah/sd_peserta_didik/sd_ptk
+// punya struktur & nilai enum yang identik dengan tabel smp_* (hasil pipeline scraping yang sama).
+
 export async function resolvePeriod(tahun: unknown, semester: unknown): Promise<{ tahun: number; semester: number }> {
   if (typeof tahun === "string" && typeof semester === "string") {
     return { tahun: Number(tahun), semester: Number(semester) };
   }
   const latest = await pool.query(
-    `SELECT tahun, semester_ajaran AS semester FROM smp_sekolah
+    `SELECT tahun, semester_ajaran AS semester FROM sd_sekolah
      ORDER BY tahun DESC, semester_ajaran DESC LIMIT 1`
   );
   return latest.rows[0];
 }
 
 export async function getSummary(tahun: number, semester: number) {
-  const result = await pool.query(
-    `SELECT COUNT(*) AS "jumlahSekolah",
-            COALESCE(SUM(jumlah_siswa), 0) AS "jumlahSiswa",
-            COALESCE(SUM(jumlah_guru), 0) AS "jumlahGuru"
-     FROM view_smp_sekolah_bersih`
+  const sekolahResult = await pool.query(
+    `SELECT COUNT(*) AS "jumlahSekolah" FROM sd_sekolah WHERE tahun = $1 AND semester_ajaran = $2`,
+    [tahun, semester]
+  );
+  const siswaResult = await pool.query(
+    `SELECT COALESCE(SUM(jumlah_siswa), 0) AS "jumlahSiswa" FROM sd_peserta_didik WHERE tahun = $1 AND semester_ajaran = $2`,
+    [tahun, semester]
+  );
+  const guruResult = await pool.query(
+    `SELECT COALESCE(SUM(jumlah_ptk), 0) AS "jumlahGuru" FROM sd_ptk WHERE tahun = $1 AND semester_ajaran = $2 AND jenis_ptk = 'GURU'`,
+    [tahun, semester]
   );
 
-  const jumlahSekolah = Number(result.rows[0].jumlahSekolah);
-  const jumlahSiswa = Number(result.rows[0].jumlahSiswa);
-  const jumlahGuru = Number(result.rows[0].jumlahGuru);
+  const jumlahSekolah = Number(sekolahResult.rows[0].jumlahSekolah);
+  const jumlahSiswa = Number(siswaResult.rows[0].jumlahSiswa);
+  const jumlahGuru = Number(guruResult.rows[0].jumlahGuru);
 
   return {
     tahun,
@@ -36,11 +45,10 @@ export async function getSummary(tahun: number, semester: number) {
 
 export async function getTrend() {
   const result = await pool.query(
-    `SELECT pd.tahun,
-            COALESCE(SUM(pd.jumlah_siswa), 0) AS "jumlahSiswa"
-     FROM smp_peserta_didik pd
+    `SELECT pd.tahun, COALESCE(SUM(pd.jumlah_siswa), 0) AS "jumlahSiswa"
+     FROM sd_peserta_didik pd
      WHERE pd.semester_ajaran = (
-       SELECT MAX(pd2.semester_ajaran) FROM smp_peserta_didik pd2 WHERE pd2.tahun = pd.tahun
+       SELECT MAX(pd2.semester_ajaran) FROM sd_peserta_didik pd2 WHERE pd2.tahun = pd.tahun
      )
      GROUP BY pd.tahun
      ORDER BY pd.tahun`
@@ -51,7 +59,7 @@ export async function getTrend() {
 export async function getSekolahPerKecamatan(tahun: number, semester: number) {
   const result = await pool.query(
     `SELECT kemendagri_nama_kecamatan AS kecamatan, status_sekolah AS status, COUNT(*) AS jumlah
-     FROM smp_sekolah
+     FROM sd_sekolah
      WHERE tahun = $1 AND semester_ajaran = $2
      GROUP BY kemendagri_nama_kecamatan, status_sekolah
      ORDER BY kemendagri_nama_kecamatan, status_sekolah`,
@@ -63,14 +71,14 @@ export async function getSekolahPerKecamatan(tahun: number, semester: number) {
 export async function getGuruSiswaPerKecamatan(tahun: number, semester: number) {
   const siswaResult = await pool.query(
     `SELECT kemendagri_nama_kecamatan AS kecamatan, COALESCE(SUM(jumlah_siswa), 0) AS "jumlahSiswa"
-     FROM smp_peserta_didik
+     FROM sd_peserta_didik
      WHERE tahun = $1 AND semester_ajaran = $2
      GROUP BY kemendagri_nama_kecamatan`,
     [tahun, semester]
   );
   const guruResult = await pool.query(
     `SELECT kemendagri_nama_kecamatan AS kecamatan, COALESCE(SUM(jumlah_ptk), 0) AS "jumlahGuru"
-     FROM smp_ptk
+     FROM sd_ptk
      WHERE tahun = $1 AND semester_ajaran = $2 AND jenis_ptk = 'GURU'
      GROUP BY kemendagri_nama_kecamatan`,
     [tahun, semester]
@@ -87,7 +95,7 @@ export async function getGuruSiswaPerKecamatan(tahun: number, semester: number) 
 export async function getSiswaGender(tahun: number, semester: number) {
   const result = await pool.query(
     `SELECT jenis_kelamin AS "jenisKelamin", COALESCE(SUM(jumlah_siswa), 0) AS "jumlahSiswa"
-     FROM smp_peserta_didik
+     FROM sd_peserta_didik
      WHERE tahun = $1 AND semester_ajaran = $2
      GROUP BY jenis_kelamin`,
     [tahun, semester]
@@ -106,7 +114,7 @@ export async function getSebaranSekolah(tahun: number, semester: number, status?
 
   const result = await pool.query(
     `SELECT kemendagri_nama_kecamatan AS kecamatan, status_sekolah AS status, COUNT(*) AS jumlah
-     FROM smp_sekolah
+     FROM sd_sekolah
      WHERE ${conditions.join(" AND ")}
      GROUP BY kemendagri_nama_kecamatan, status_sekolah
      ORDER BY kemendagri_nama_kecamatan`,

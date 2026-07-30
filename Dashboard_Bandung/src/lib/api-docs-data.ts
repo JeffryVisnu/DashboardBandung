@@ -10,8 +10,8 @@
 import type { ApiSectorDocs } from "@/types/dataset";
 
 const PERIOD_PARAMS = [
-  { name: "tahun", required: false, desc: { id: "Tahun ajaran, mis. 2024. Default: tahun terbaru yang tersedia.", en: "School year, e.g. 2024. Defaults to the latest available year." } },
-  { name: "semester", required: false, desc: { id: "Semester ajaran (1 atau 2). Default: semester terbaru yang tersedia.", en: "Semester (1 or 2). Defaults to the latest available semester." } },
+  { name: "tahun", required: false, desc: "Tahun ajaran, mis. 2024. Default: tahun terbaru yang tersedia." },
+  { name: "semester", required: false, desc: "Semester ajaran (1 atau 2). Default: semester terbaru yang tersedia." },
 ];
 
 export const API_DOCS: ApiSectorDocs[] = [
@@ -20,9 +20,10 @@ export const API_DOCS: ApiSectorDocs[] = [
     endpoints: [
       {
         method: "GET",
-        path: "/v1/pendidikan/summary",
-        summary: { id: "Ringkasan SMP Kota Bandung", en: "Bandung Middle School Summary" },
-        description: { id: "Jumlah sekolah, peserta didik, guru, serta rata-rata guru dan peserta didik per sekolah.", en: "Number of schools, students, teachers, and average teachers/students per school." },
+        path: "/v1/pendidikan/jumlah-smp/summary",
+        dashboardSlug: "jumlah-smp",
+        summary: "Ringkasan SMP Kota Bandung",
+        description: "Jumlah sekolah, peserta didik, guru, serta rata-rata guru dan peserta didik per sekolah.",
         queryParams: PERIOD_PARAMS,
         exampleResponse: `{
   "data": {
@@ -39,9 +40,10 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/trend",
-        summary: { id: "Tren Jumlah Peserta Didik SMP", en: "Middle School Student Trend" },
-        description: { id: "Jumlah peserta didik SMP per tahun ajaran (2020–2024).", en: "Middle school student count by school year (2020–2024)." },
+        path: "/v1/pendidikan/jumlah-smp/trend",
+        dashboardSlug: "jumlah-smp",
+        summary: "Tren Jumlah Peserta Didik SMP",
+        description: "Jumlah peserta didik SMP per tahun ajaran (2020–2024).",
         exampleResponse: `{
   "data": [
     { "tahun": 2020, "jumlahSiswa": 97864 },
@@ -53,9 +55,10 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/sekolah-per-kecamatan",
-        summary: { id: "Sekolah Negeri & Swasta per Kecamatan", en: "Public & Private Schools by District" },
-        description: { id: "Jumlah SMP negeri dan swasta di tiap kecamatan Kota Bandung.", en: "Number of public and private middle schools in each district of Bandung." },
+        path: "/v1/pendidikan/jumlah-smp/sekolah-per-kecamatan",
+        dashboardSlug: "jumlah-smp",
+        summary: "Sekolah Negeri & Swasta per Kecamatan",
+        description: "Jumlah SMP negeri dan swasta di tiap kecamatan Kota Bandung.",
         queryParams: PERIOD_PARAMS,
         exampleResponse: `{
   "data": [
@@ -67,9 +70,10 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/guru-siswa-per-kecamatan",
-        summary: { id: "Guru & Peserta Didik per Kecamatan", en: "Teachers & Students by District" },
-        description: { id: "Jumlah guru dan peserta didik SMP di tiap kecamatan.", en: "Number of middle school teachers and students in each district." },
+        path: "/v1/pendidikan/jumlah-smp/guru-siswa-per-kecamatan",
+        dashboardSlug: "jumlah-smp",
+        summary: "Guru & Peserta Didik per Kecamatan",
+        description: "Jumlah guru dan peserta didik SMP di tiap kecamatan.",
         queryParams: PERIOD_PARAMS,
         exampleResponse: `{
   "data": [
@@ -81,9 +85,10 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/siswa-gender",
-        summary: { id: "Komposisi Peserta Didik per Jenis Kelamin", en: "Student Count by Gender" },
-        description: { id: "Total peserta didik SMP Kota Bandung berdasarkan jenis kelamin (laki-laki/perempuan).", en: "Total middle school students in Bandung by gender." },
+        path: "/v1/pendidikan/jumlah-smp/siswa-gender",
+        dashboardSlug: "jumlah-smp",
+        summary: "Komposisi Peserta Didik per Jenis Kelamin",
+        description: "Total peserta didik SMP Kota Bandung berdasarkan jenis kelamin (laki-laki/perempuan).",
         queryParams: PERIOD_PARAMS,
         exampleResponse: `{
   "data": [
@@ -95,11 +100,12 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/sebaran-sekolah",
-        summary: { id: "Sebaran Sekolah per Kecamatan", en: "School Distribution by District" },
-        description: { id: "Sama seperti sekolah-per-kecamatan, bisa difilter status sekolah.", en: "Same as sekolah-per-kecamatan, filterable by school status." },
+        path: "/v1/pendidikan/jumlah-smp/sebaran-sekolah",
+        dashboardSlug: "jumlah-smp",
+        summary: "Sebaran Sekolah per Kecamatan",
+        description: "Sama seperti sekolah-per-kecamatan, bisa difilter status sekolah.",
         queryParams: [
-          { name: "status", required: false, desc: { id: "NEGERI atau SWASTA. Kosongkan untuk menampilkan keduanya.", en: "NEGERI or SWASTA. Leave empty to include both." } },
+          { name: "status", required: false, desc: "NEGERI atau SWASTA. Kosongkan untuk menampilkan keduanya." },
           ...PERIOD_PARAMS,
         ],
         exampleResponse: `{
@@ -108,6 +114,105 @@ export const API_DOCS: ApiSectorDocs[] = [
     { "kecamatan": "ANTAPANI", "status": "NEGERI", "jumlah": "2" }
   ],
   "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-05T09:45:43.205Z" }
+}`,
+      },
+      // ─── SD — sejajar dengan endpoint SMP di atas, tabel sumbernya sd_* ─────────
+      {
+        method: "GET",
+        path: "/v1/pendidikan/jumlah-sd/summary",
+        dashboardSlug: "jumlah-sd",
+        summary: "Ringkasan SD Kota Bandung",
+        description: "Jumlah sekolah, peserta didik, guru, serta rata-rata guru dan peserta didik per sekolah — data SD.",
+        queryParams: PERIOD_PARAMS,
+        exampleResponse: `{
+  "data": {
+    "tahun": 2024,
+    "semester": 2,
+    "jumlahSekolah": 420,
+    "jumlahSiswa": 201569,
+    "jumlahGuru": 0,
+    "rataGuruPerSekolah": 0,
+    "rataSiswaPerSekolah": 479.93
+  },
+  "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-29T11:30:10.206Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/pendidikan/jumlah-sd/trend",
+        dashboardSlug: "jumlah-sd",
+        summary: "Tren Jumlah Peserta Didik SD",
+        description: "Jumlah peserta didik SD per tahun ajaran.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2020, "jumlahSiswa": 213573 },
+    { "tahun": 2023, "jumlahSiswa": 202200 },
+    { "tahun": 2024, "jumlahSiswa": 201569 }
+  ],
+  "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-29T11:30:10.206Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/pendidikan/jumlah-sd/sekolah-per-kecamatan",
+        dashboardSlug: "jumlah-sd",
+        summary: "Sekolah Negeri & Swasta per Kecamatan (SD)",
+        description: "Jumlah SD negeri dan swasta di tiap kecamatan Kota Bandung.",
+        queryParams: PERIOD_PARAMS,
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "status": "NEGERI", "jumlah": "8" },
+    { "kecamatan": "ANDIR", "status": "SWASTA", "jumlah": "3" }
+  ],
+  "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-29T11:30:10.206Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/pendidikan/jumlah-sd/guru-siswa-per-kecamatan",
+        dashboardSlug: "jumlah-sd",
+        summary: "Guru & Peserta Didik per Kecamatan (SD)",
+        description: "Jumlah guru dan peserta didik SD di tiap kecamatan.",
+        queryParams: PERIOD_PARAMS,
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "CICENDO", "jumlahSiswa": 4210, "jumlahGuru": 0 },
+    { "kecamatan": "REGOL", "jumlahSiswa": 4890, "jumlahGuru": 0 }
+  ],
+  "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-29T11:30:10.206Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/pendidikan/jumlah-sd/siswa-gender",
+        dashboardSlug: "jumlah-sd",
+        summary: "Komposisi Peserta Didik per Jenis Kelamin (SD)",
+        description: "Total peserta didik SD Kota Bandung berdasarkan jenis kelamin (laki-laki/perempuan).",
+        queryParams: PERIOD_PARAMS,
+        exampleResponse: `{
+  "data": [
+    { "jenisKelamin": "LAKI-LAKI", "jumlahSiswa": "104045" },
+    { "jenisKelamin": "PEREMPUAN", "jumlahSiswa": "97524" }
+  ],
+  "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-29T11:30:10.206Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/pendidikan/jumlah-sd/sebaran-sekolah",
+        dashboardSlug: "jumlah-sd",
+        summary: "Sebaran Sekolah per Kecamatan (SD)",
+        description: "Sama seperti sekolah-per-kecamatan (SD), bisa difilter status sekolah.",
+        queryParams: [
+          { name: "status", required: false, desc: "NEGERI atau SWASTA. Kosongkan untuk menampilkan keduanya." },
+          ...PERIOD_PARAMS,
+        ],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "status": "NEGERI", "jumlah": "8" },
+    { "kecamatan": "ANTAPANI", "status": "NEGERI", "jumlah": "4" }
+  ],
+  "meta": { "source": "Dinas Pendidikan Kota Bandung", "generatedAt": "2026-07-29T11:30:10.206Z" }
 }`,
       },
     ],

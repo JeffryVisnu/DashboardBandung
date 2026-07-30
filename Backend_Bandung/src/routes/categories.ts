@@ -1,7 +1,12 @@
 import { Router, type Request, type Response } from "express";
-import crypto from "node:crypto";
 import { pool } from "../db.js";
 import * as pendidikan from "../services/pendidikan.js";
+import * as sd from "../services/sd.js";
+import * as sectorViews from "../services/sectorViews.js";
+import * as siteSettings from "../services/siteSettings.js";
+import * as sectors from "../services/sectors.js";
+import * as apiRequests from "../services/apiRequests.js";
+import { sendApiRequestConfirmation, sendAdminNotification } from "../services/mailer.js";
 
 const router = Router();
 
@@ -18,14 +23,79 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
   };
 }
 
-// POST /api/categories/api-keys — buat API key baru untuk fitur "Kunci API Anda" di /data-api
-router.post("/api-keys", asyncRoute(async (req, res) => {
-  const label = typeof req.body?.label === "string" && req.body.label.trim() !== "" ? req.body.label.trim() : "dashboard-web-user";
-  const key = "bdg_live_" + crypto.randomBytes(20).toString("hex");
+// GET /api/categories/site-settings — logo, teks hero, statistik homepage (dikelola admin)
+router.get("/site-settings", asyncRoute(async (_req, res) => {
+  const settings = await siteSettings.getSiteSettings();
+  if (!settings) {
+    res.status(404).json({ error: "site_settings belum di-seed." });
+    return;
+  }
+  res.json(settings);
+}));
 
-  await pool.query(`INSERT INTO api_keys (key, label) VALUES ($1, $2)`, [key, label]);
+// GET /api/categories/sectors — daftar sektor (dikelola admin, menggantikan SECTORS statis di FE)
+router.get("/sectors", asyncRoute(async (_req, res) => {
+  res.json(await sectors.listSectors());
+}));
 
-  res.status(201).json({ key, label });
+// GET /api/categories/sectors/:id/datasets — dataset (embed iframe) milik 1 sektor
+router.get("/sectors/:id/datasets", asyncRoute(async (req, res) => {
+  res.json(await sectors.listDatasets(req.params.id));
+}));
+
+// GET /api/categories/sector-datasets — dataset semua sektor sekaligus, dipakai kartu
+// "Dashboard" di /topik & beranda supaya tidak perlu fetch per sektor satu-satu.
+router.get("/sector-datasets", asyncRoute(async (_req, res) => {
+  res.json(await sectors.listAllDatasets());
+}));
+
+// POST /api/categories/datasets/:id/view — nambah 1 kunjungan 1 dashboard. Dipanggil sekali
+// tiap halaman 1 dashboard (/dashboard/[slug]/[dashboardId]) dibuka — angka "dilihat" jadi
+// per-dashboard, bukan lagi digabung per sektor.
+router.post("/datasets/:id/view", asyncRoute(async (req, res) => {
+  const views = await sectors.incrementDatasetView(Number(req.params.id));
+  if (views === null) {
+    res.status(404).json({ error: "Dashboard tidak ditemukan." });
+    return;
+  }
+  res.json({ id: Number(req.params.id), views });
+}));
+
+// POST /api/categories/api-requests — formulir publik "Ajukan Permintaan API"
+router.post("/api-requests", asyncRoute(async (req, res) => {
+  const { name, institution, website, email, notes } = req.body ?? {};
+  if ([name, institution, email].some((v) => typeof v !== "string" || v.trim() === "")) {
+    res.status(400).json({ error: "name, institution, dan email wajib diisi." });
+    return;
+  }
+
+  const created = await apiRequests.createRequest({ name, institution, website, email, notes });
+
+  sendApiRequestConfirmation(email, name).catch(() => {});
+  sendAdminNotification({ name, institution, email, website, notes }).catch(() => {});
+
+  res.status(201).json(created);
+}));
+
+// GET /api/categories/sector-visibility — dipakai FE untuk menyaring sektor yang disembunyikan admin
+router.get("/sector-visibility", asyncRoute(async (_req, res) => {
+  const result = await pool.query(
+    `SELECT sector_id AS "sectorId", is_visible AS "isVisible" FROM sector_visibility`
+  );
+  res.json(result.rows);
+}));
+
+// GET /api/categories/sector-views — jumlah kunjungan (total view) nyata per sektor,
+// dipakai halaman /topik menggantikan angka dummy.
+router.get("/sector-views", asyncRoute(async (_req, res) => {
+  res.json(await sectorViews.getAllViews());
+}));
+
+// POST /api/categories/:slug/view — nambah 1 kunjungan sektor. Dipanggil sekali tiap
+// halaman detail sektor (/dashboard/[slug]) dibuka.
+router.post("/:slug/view", asyncRoute(async (req, res) => {
+  const views = await sectorViews.incrementView(req.params.slug);
+  res.json({ sectorId: req.params.slug, views });
 }));
 
 // GET /api/categories
@@ -168,6 +238,44 @@ router.get("/pendidikan/sebaran-sekolah", asyncRoute(async (req, res) => {
   const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
   const { status } = req.query;
   res.json(await pendidikan.getSebaranSekolah(tahun, semester, typeof status === "string" ? status : undefined));
+}));
+
+// ─── Pendidikan (SD) — sejajar dengan /pendidikan/* (SMP) di atas ─────────────────────────────
+
+// GET /api/categories/sd/summary?tahun=2024&semester=2
+router.get("/sd/summary", asyncRoute(async (req, res) => {
+  const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+  res.json(await sd.getSummary(tahun, semester));
+}));
+
+// GET /api/categories/sd/trend
+router.get("/sd/trend", asyncRoute(async (_req, res) => {
+  res.json(await sd.getTrend());
+}));
+
+// GET /api/categories/sd/sekolah-per-kecamatan?tahun=2024&semester=2
+router.get("/sd/sekolah-per-kecamatan", asyncRoute(async (req, res) => {
+  const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+  res.json(await sd.getSekolahPerKecamatan(tahun, semester));
+}));
+
+// GET /api/categories/sd/guru-siswa-per-kecamatan?tahun=2024&semester=2
+router.get("/sd/guru-siswa-per-kecamatan", asyncRoute(async (req, res) => {
+  const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+  res.json(await sd.getGuruSiswaPerKecamatan(tahun, semester));
+}));
+
+// GET /api/categories/sd/siswa-gender?tahun=2024&semester=2
+router.get("/sd/siswa-gender", asyncRoute(async (req, res) => {
+  const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+  res.json(await sd.getSiswaGender(tahun, semester));
+}));
+
+// GET /api/categories/sd/sebaran-sekolah?status=NEGERI&tahun=2024&semester=2
+router.get("/sd/sebaran-sekolah", asyncRoute(async (req, res) => {
+  const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+  const { status } = req.query;
+  res.json(await sd.getSebaranSekolah(tahun, semester, typeof status === "string" ? status : undefined));
 }));
 
 export default router;

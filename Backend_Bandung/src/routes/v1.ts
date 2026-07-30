@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import { requireApiKey } from "../middleware/requireApiKey.js";
 import * as pendidikan from "../services/pendidikan.js";
+import * as sd from "../services/sd.js";
+import * as sectorsService from "../services/sectors.js";
 
 const router = Router();
 
@@ -17,44 +19,100 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
   };
 }
 
-function envelope(data: unknown) {
-  return { data, meta: { source: "Dinas Pendidikan Kota Bandung", generatedAt: new Date().toISOString() } };
+function envelope(data: unknown, source = "Diskominfo Kota Bandung") {
+  return { data, meta: { source, generatedAt: new Date().toISOString() } };
 }
 
-// GET /api/v1/pendidikan/summary?tahun=2024&semester=2
-router.get("/pendidikan/summary", asyncRoute(async (req, res) => {
-  const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
-  res.json(envelope(await pendidikan.getSummary(tahun, semester)));
+/**
+ * Endpoint bespoke (query SQL kustom, bukan sekadar metadata dashboard) didaftarkan di sini,
+ * dikelompokkan per sektor -> per dashboard -> nama endpoint. Menambah endpoint baru untuk
+ * dashboard yang sudah bespoke (mis. jenjang SMA nanti) cukup menambah 1 baris di sini.
+ */
+const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Request) => Promise<unknown>>>> = {
+  pendidikan: {
+    "jumlah-smp": {
+      summary: async (req) => {
+        const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
+        return pendidikan.getSummary(tahun, semester);
+      },
+      trend: async () => pendidikan.getTrend(),
+      "sekolah-per-kecamatan": async (req) => {
+        const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
+        return pendidikan.getSekolahPerKecamatan(tahun, semester);
+      },
+      "guru-siswa-per-kecamatan": async (req) => {
+        const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
+        return pendidikan.getGuruSiswaPerKecamatan(tahun, semester);
+      },
+      "siswa-gender": async (req) => {
+        const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
+        return pendidikan.getSiswaGender(tahun, semester);
+      },
+      "sebaran-sekolah": async (req) => {
+        const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
+        const { status } = req.query;
+        return pendidikan.getSebaranSekolah(tahun, semester, typeof status === "string" ? status : undefined);
+      },
+    },
+    "jumlah-sd": {
+      summary: async (req) => {
+        const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+        return sd.getSummary(tahun, semester);
+      },
+      trend: async () => sd.getTrend(),
+      "sekolah-per-kecamatan": async (req) => {
+        const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+        return sd.getSekolahPerKecamatan(tahun, semester);
+      },
+      "guru-siswa-per-kecamatan": async (req) => {
+        const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+        return sd.getGuruSiswaPerKecamatan(tahun, semester);
+      },
+      "siswa-gender": async (req) => {
+        const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+        return sd.getSiswaGender(tahun, semester);
+      },
+      "sebaran-sekolah": async (req) => {
+        const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
+        const { status } = req.query;
+        return sd.getSebaranSekolah(tahun, semester, typeof status === "string" ? status : undefined);
+      },
+    },
+  },
+};
+
+// GET /api/v1/sectors — daftar semua sektor Kota Bandung. Terdaftar sebelum /:sectorId supaya
+// tidak ketangkap sebagai nama sektor.
+router.get("/sectors", asyncRoute(async (_req, res) => {
+  res.json(envelope(await sectorsService.listSectors()));
 }));
 
-// GET /api/v1/pendidikan/trend
-router.get("/pendidikan/trend", asyncRoute(async (_req, res) => {
-  res.json(envelope(await pendidikan.getTrend()));
+// GET /api/v1/:sectorId — daftar dashboard (laporan/embed) milik 1 sektor, mis. /v1/pendidikan
+router.get("/:sectorId", asyncRoute(async (req, res) => {
+  res.json(envelope(await sectorsService.listDatasets(req.params.sectorId)));
 }));
 
-// GET /api/v1/pendidikan/sekolah-per-kecamatan?tahun=2024&semester=2
-router.get("/pendidikan/sekolah-per-kecamatan", asyncRoute(async (req, res) => {
-  const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
-  res.json(envelope(await pendidikan.getSekolahPerKecamatan(tahun, semester)));
+// GET /api/v1/:sectorId/:dashboardSlug — detail 1 dashboard (judul, link embed, ukuran, dilihat),
+// mis. /v1/pendidikan/jumlah-sd
+router.get("/:sectorId/:dashboardSlug", asyncRoute(async (req, res) => {
+  const dashboard = await sectorsService.getDatasetBySlug(req.params.dashboardSlug);
+  if (!dashboard || dashboard.sectorId !== req.params.sectorId) {
+    res.status(404).json({ error: "Dashboard tidak ditemukan." });
+    return;
+  }
+  res.json(envelope(dashboard));
 }));
 
-// GET /api/v1/pendidikan/guru-siswa-per-kecamatan?tahun=2024&semester=2
-router.get("/pendidikan/guru-siswa-per-kecamatan", asyncRoute(async (req, res) => {
-  const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
-  res.json(envelope(await pendidikan.getGuruSiswaPerKecamatan(tahun, semester)));
-}));
-
-// GET /api/v1/pendidikan/siswa-gender?tahun=2024&semester=2
-router.get("/pendidikan/siswa-gender", asyncRoute(async (req, res) => {
-  const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
-  res.json(envelope(await pendidikan.getSiswaGender(tahun, semester)));
-}));
-
-// GET /api/v1/pendidikan/sebaran-sekolah?status=NEGERI&tahun=2024&semester=2
-router.get("/pendidikan/sebaran-sekolah", asyncRoute(async (req, res) => {
-  const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
-  const { status } = req.query;
-  res.json(envelope(await pendidikan.getSebaranSekolah(tahun, semester, typeof status === "string" ? status : undefined)));
+// GET /api/v1/:sectorId/:dashboardSlug/:endpoint — endpoint data bespoke milik 1 dashboard,
+// mis. /v1/pendidikan/jumlah-sd/summary, /v1/pendidikan/jumlah-smp/trend
+router.get("/:sectorId/:dashboardSlug/:endpoint", asyncRoute(async (req, res) => {
+  const { sectorId, dashboardSlug, endpoint } = req.params;
+  const handler = BESPOKE_ENDPOINTS[sectorId]?.[dashboardSlug]?.[endpoint];
+  if (!handler) {
+    res.status(404).json({ error: "Endpoint tidak ditemukan." });
+    return;
+  }
+  res.json(envelope(await handler(req), "Dinas Pendidikan Kota Bandung"));
 }));
 
 export default router;

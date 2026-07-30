@@ -49,14 +49,14 @@ export type SectorCluster = "gov" | "sosial" | "fisik";
 export interface Sector {
   id: string;
   code: string;          // singkatan 2-3 huruf, e.g. "DUK"
-  name: { id: string; en: string };
-  desc: { id: string; en: string };
-  stat: { id: string; en: string };
+  name: string;
+  desc: string;
+  stat: string;
   color: string;         // hex warna utama
   tint: string;          // hex warna latar badge
   cluster: SectorCluster;
   spark: number[];       // data sparkline (array angka)
-  statusLabel: { id: string; en: string };
+  statusLabel: string;
   statusColor: string;   // warna dot status
   statusBg: string;      // background chip status
 }
@@ -73,73 +73,53 @@ export interface KecamatanData {
 
 /** Kelompok usia untuk bar chart komposisi */
 export interface AgeBand {
-  label: { id: string; en: string };
+  label: string;
   male: number;   // persentase
   female: number; // persentase
 }
 
 /** Realisasi anggaran per Dinas (exec screen) */
 export interface DinasBudget {
-  name: { id: string; en: string };
+  name: string;
   pct: number;
 }
-
-/** Notifikasi / peringatan di exec screen */
-export interface ExecAlert {
-  mark: string;     // tanda/simbol
-  color: string;    // warna teks
-  bg: string;       // background
-  text: { id: string; en: string };
-}
-
-/** Skor kinerja kecamatan (exec screen) */
-export interface KecamatanSkor {
-  name: string;
-  skor: number;
-}
-
-/** Bahasa aktif */
-export type Lang = "id" | "en";
 
 /** Filter sektor */
 export type SectorFilter = "semua" | SectorCluster;
 
 /** Satu kartu KPI di halaman detail sektor */
 export interface SectorKpi {
-  label: { id: string; en: string };
+  label: string;
   value: string;
   accent?: "green" | "ink";
 }
 
 /** Satu baris breakdown (bar chart dua kategori) di halaman detail sektor */
 export interface SectorBreakdownRow {
-  label: { id: string; en: string };
+  label: string;
   a: number; // persentase kategori A
   b: number; // persentase kategori B
-}
-
-/** Satu kartu "dashboard/laporan" di dalam grid Eksplorasi Dashboard (per sektor bisa >1) */
-export interface SectorDashboardItem {
-  title: { id: string; en: string };
-  year: number;
-  views: number;
 }
 
 /** Satu parameter query pada dokumentasi endpoint API */
 export interface ApiQueryParam {
   name: string;
   required: boolean;
-  desc: { id: string; en: string };
+  desc: string;
 }
 
 /** Satu endpoint di halaman dokumentasi Data API */
 export interface ApiEndpointDoc {
   method: "GET";
   path: string;
-  summary: { id: string; en: string };
-  description: { id: string; en: string };
+  summary: string;
+  description: string;
   queryParams?: ApiQueryParam[];
   exampleResponse: string;
+  /** Slug dashboard yang endpoint ini terkait (mis. "jumlah-smp") — dipakai untuk mengelompokkan
+   * endpoint bespoke di bawah dashboard yang sesuai di halaman /data-api, bukan ditumpuk rata
+   * di bawah sektornya saja. */
+  dashboardSlug?: string;
 }
 
 /** Dokumentasi API untuk satu sektor (bisa berisi banyak endpoint atau belum ada sama sekali) */
@@ -153,14 +133,13 @@ export interface SectorDetail {
   kpis: SectorKpi[];
   trend: number[];
   trendPeriods: (string | number)[];
-  breakdownTitle: { id: string; en: string };
-  breakdownLegendA: { id: string; en: string };
-  breakdownLegendB: { id: string; en: string };
+  breakdownTitle: string;
+  breakdownLegendA: string;
+  breakdownLegendB: string;
   breakdownRows: SectorBreakdownRow[];
   /** Label kolom nilai di tabel/cartogram kecamatan, mis. "Jumlah UMKM" */
-  kecamatanValueLabel: { id: string; en: string };
+  kecamatanValueLabel: string;
   kecamatanUnit: string;
   /** Kalikan populasi kecamatan dengan faktor ini untuk memperoleh nilai dummy sektor */
   kecamatanFactor: number;
 }
-

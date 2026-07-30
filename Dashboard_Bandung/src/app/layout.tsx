@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LangProvider } from "@/lib/lang-context";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,10 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="h-full">
-      <body className="min-h-full flex flex-col">
-        <LangProvider>{children}</LangProvider>
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
-
