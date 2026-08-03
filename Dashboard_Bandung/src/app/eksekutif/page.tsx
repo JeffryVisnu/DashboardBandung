@@ -421,16 +421,16 @@ export default function EksekutifPage() {
   return (
     <main className="min-h-screen bg-bd-ink text-white">
       {/* Thin badge bar */}
-      <div className="bg-[#08192F] px-8 py-2.5 flex items-center justify-between border-b border-white/10">
-        <span className="font-bold text-[11px] text-bd-gold">&#128274; {s.exec_badge}</span>
+      <div className="bg-[#08192F] px-4 md:px-8 py-2.5 flex items-center justify-between gap-3 border-b border-white/10">
+        <span className="font-bold text-[10.5px] md:text-[11px] text-bd-gold shrink-0">&#128274; {s.exec_badge}</span>
         {token && (
-          <div className="flex items-center gap-3.5">
-            <div className="text-right">
+          <div className="flex items-center gap-2 md:gap-3.5 min-w-0">
+            <div className="text-right hidden sm:block">
               <div className="font-bold text-[12.5px] text-white">{s.exec_welcome}, Admin</div>
               <div className="font-medium text-[11px] text-white/50">{s.exec_role}</div>
             </div>
             <div className="w-9 h-9 rounded-full bg-bd-gold flex items-center justify-center font-extrabold text-[13px] text-bd-ink shrink-0">A</div>
-            <button onClick={logout} className="bg-transparent border-[1.5px] border-white/25 text-white font-bold px-4 py-2 rounded-lg cursor-pointer hover:bg-white/10 transition-colors text-[12px]">
+            <button onClick={logout} className="bg-transparent border-[1.5px] border-white/25 text-white font-bold px-3 md:px-4 py-2 rounded-lg cursor-pointer hover:bg-white/10 transition-colors text-[11.5px] md:text-[12px] shrink-0 whitespace-nowrap">
               {s.exec_logout}
             </button>
           </div>
@@ -487,17 +487,17 @@ export default function EksekutifPage() {
         </div>
       ) : (
         /* Admin panel */
-        <div className="p-8">
-          <div className="text-[21px] font-extrabold text-white mb-6">{s.exec_overview_title}</div>
+        <div className="p-4 md:p-8">
+          <div className="text-[18px] md:text-[21px] font-extrabold text-white mb-4 md:mb-6">{s.exec_overview_title}</div>
 
-          <div className="flex gap-6 items-start">
-            {/* Sidebar */}
-            <aside className="w-64 shrink-0 flex flex-col gap-1 sticky top-6">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-stretch md:items-start">
+            {/* Sidebar — strip horizontal di mobile, kolom tetap di desktop */}
+            <aside className="w-full md:w-64 shrink-0 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible thin-scroll md:sticky md:top-6 pb-1 md:pb-0">
               {ADMIN_TABS.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`text-left px-4 py-2.5 rounded-xl text-[13px] font-bold transition-colors cursor-pointer border-none ${
+                  className={`shrink-0 whitespace-nowrap text-left px-4 py-2.5 rounded-xl text-[12.5px] md:text-[13px] font-bold transition-colors cursor-pointer border-none ${
                     activeTab === tab.id ? "bg-bd-gold text-bd-ink" : "bg-white/5 text-white/70 hover:bg-white/10"
                   }`}
                 >
@@ -507,7 +507,7 @@ export default function EksekutifPage() {
             </aside>
 
             {/* Content */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 w-full">
               {activeTab === "situs" && (
           <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-6 p-5.5">
             <div className="font-bold text-[15px] text-white mb-4">{s.admin_site_settings_title}</div>
@@ -599,7 +599,8 @@ export default function EksekutifPage() {
               </button>
             </form>
 
-            <table className="w-full text-left border-collapse mb-4">
+            <div className="overflow-x-auto mb-4">
+            <table className="w-full text-left border-collapse min-w-125">
               <thead>
                 <tr className="border-t border-white/10">
                   <th className="py-2.5 px-3 text-[10.5px] font-bold text-white/50 uppercase">{s.admin_col_sector}</th>
@@ -641,6 +642,7 @@ export default function EksekutifPage() {
                 })}
               </tbody>
             </table>
+            </div>
 
             {selectedSectorId && (
               <div className="bg-black/20 rounded-lg p-4">
@@ -738,7 +740,8 @@ export default function EksekutifPage() {
           {/* Permintaan API */}
           <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-6">
             <div className="font-bold text-[15px] text-white p-5.5 pb-4">{s.admin_api_requests_title}</div>
-            <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-175">
               <thead>
                 <tr className="border-t border-white/10">
                   <th className="py-2.5 px-5.5 text-[10.5px] font-bold text-white/50 uppercase">{s.admin_col_name}</th>
@@ -780,6 +783,7 @@ export default function EksekutifPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* API Keys */}
@@ -831,7 +835,8 @@ export default function EksekutifPage() {
               />
             </div>
 
-            <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-175">
               <thead>
                 <tr className="border-t border-white/10">
                   <th className="py-2.5 px-5.5 text-[10.5px] font-bold text-white/50 uppercase">{s.admin_col_label}</th>
@@ -879,9 +884,10 @@ export default function EksekutifPage() {
                 )}
               </tbody>
             </table>
+            </div>
 
             {filteredApiKeys.length > 0 && (
-              <div className="flex items-center justify-between px-5.5 py-3.5 border-t border-white/10">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-5.5 py-3.5 border-t border-white/10">
                 <span className="text-[11.5px] font-medium text-white/50">
                   Halaman {apiKeyPageSafe} dari {apiKeyTotalPages} &middot; {filteredApiKeys.length} key
                 </span>

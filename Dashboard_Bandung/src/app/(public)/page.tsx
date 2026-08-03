@@ -60,7 +60,7 @@ export default function Home() {
   return (
     <main className="bg-white">
       {/* Hero Section */}
-      <section className="bg-bd-blue-dark text-white relative overflow-hidden flex flex-col pt-24 px-8 shadow-xl">
+      <section className="bg-bd-blue-dark text-white relative overflow-hidden flex flex-col pt-16 md:pt-24 px-5 md:px-8 shadow-xl">
         <div className="absolute top-0 right-0 w-250 h-250 pointer-events-none">
           <div className="absolute right-0 top-0 w-full h-full border border-white/5 rounded-full translate-x-1/3 -translate-y-1/3"></div>
           <div className="absolute right-10 top-10 w-[90%] h-[90%] border border-white/5 rounded-full translate-x-1/3 -translate-y-1/3"></div>
@@ -96,18 +96,18 @@ export default function Home() {
       </section>
 
       {/* Dashboard Pilihan */}
-      <section className="max-w-350 mx-auto px-6 py-12">
-        <div className="px-4 mb-8 flex justify-between items-end">
+      <section className="max-w-350 mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="px-2 md:px-4 mb-6 md:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
           <div>
-            <h2 className="text-[26px] font-extrabold text-bd-ink mb-1">{s.featured_title}</h2>
-            <p className="text-bd-ink2 text-[15px]">{s.featured_sub}</p>
+            <h2 className="text-[21px] md:text-[26px] font-extrabold text-bd-ink mb-1">{s.featured_title}</h2>
+            <p className="text-bd-ink2 text-[13.5px] md:text-[15px]">{s.featured_sub}</p>
           </div>
-          <Link href="/topik" className="text-bd-blue font-bold text-[14px] hover:underline">
+          <Link href="/topik" className="text-bd-blue font-bold text-[13.5px] md:text-[14px] hover:underline shrink-0">
             {s.explore_more} &rarr;
           </Link>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 px-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-2 md:px-4">
           {featuredDashboards.map(({ sector, item }) => (
             <Link
               key={item.id}
@@ -115,7 +115,7 @@ export default function Home() {
               className="bg-white border border-bd-border rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:border-bd-blue/30 flex flex-col"
             >
               <div
-                className="h-28 relative flex items-center justify-center text-[24px] font-extrabold"
+                className="h-20 md:h-28 relative flex items-center justify-center text-[18px] md:text-[24px] font-extrabold"
                 style={{ backgroundColor: sector.tint, color: sector.color }}
               >
                 {sector.code}
@@ -123,8 +123,8 @@ export default function Home() {
                   &#8599;
                 </span>
               </div>
-              <div className="p-5">
-                <h3 className="text-[14px] font-extrabold text-bd-ink leading-snug line-clamp-2">{item.title}</h3>
+              <div className="p-3.5 md:p-5">
+                <h3 className="text-[12.5px] md:text-[14px] font-extrabold text-bd-ink leading-snug line-clamp-2">{item.title}</h3>
               </div>
             </Link>
           ))}
@@ -133,8 +133,8 @@ export default function Home() {
 
       {/* Highlight Section */}
       {highlightCards.length > 0 && (
-        <section className="max-w-350 mx-auto px-10 pb-16 pt-8">
-          <h2 className="text-[26px] font-extrabold text-bd-ink mb-6">{s.highlight_section_title}</h2>
+        <section className="max-w-350 mx-auto px-4 md:px-10 pb-16 pt-8">
+          <h2 className="text-[21px] md:text-[26px] font-extrabold text-bd-ink mb-6">{s.highlight_section_title}</h2>
 
           <div className="relative">
             <button

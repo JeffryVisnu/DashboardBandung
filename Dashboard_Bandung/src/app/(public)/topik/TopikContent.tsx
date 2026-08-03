@@ -35,8 +35,8 @@ export function TopikContent() {
   return (
     <main className="pb-24 bg-white">
       {/* Page Header */}
-      <section className="pt-10 pb-6">
-        <div className="max-w-350 mx-auto px-10">
+      <section className="pt-6 md:pt-10 pb-6">
+        <div className="max-w-350 mx-auto px-4 md:px-10">
           <div className="flex items-center gap-2 text-[11px] font-bold text-bd-ink3 uppercase tracking-wider mb-6">
             <Link href="/" className="text-bd-ink3 hover:text-bd-blue">
               {s.breadcrumb_home}
@@ -46,15 +46,15 @@ export function TopikContent() {
           </div>
 
           <div className="mb-6">
-            <h1 className="text-[32px] font-extrabold text-bd-ink mb-3 tracking-tight">
+            <h1 className="text-[24px] md:text-[32px] font-extrabold text-bd-ink mb-3 tracking-tight">
               {s.topics_h1}
             </h1>
-            <p className="text-[15px] font-medium text-bd-ink2">
+            <p className="text-[14px] md:text-[15px] font-medium text-bd-ink2">
               {s.topics_sub}
             </p>
           </div>
 
-          <div className="w-100 relative">
+          <div className="w-full md:w-100 relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-bd-ink3">
               <svg
                 width="14"
@@ -82,15 +82,15 @@ export function TopikContent() {
       </section>
 
       {/* Sidebar + Content */}
-      <section className="max-w-350 mx-auto px-10 flex gap-8 items-start">
-        {/* Sidebar */}
-        <aside className="w-60 shrink-0 flex flex-col gap-1 sticky top-6">
+      <section className="max-w-350 mx-auto px-4 md:px-10 flex flex-col md:flex-row gap-4 md:gap-8 items-start">
+        {/* Sidebar — strip horizontal di mobile, kolom tetap di desktop */}
+        <aside className="w-full md:w-60 shrink-0 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible thin-scroll md:sticky md:top-6 pb-1 md:pb-0">
           <button
             onClick={() => setActiveSector("semua")}
-            className={`text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 ${
+            className={`shrink-0 text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 whitespace-nowrap ${
               activeSector === "semua"
-                ? "bg-bd-blue-light text-bd-blue border-l-4 border-bd-blue"
-                : "text-bd-ink2 hover:bg-bd-surface border-l-4 border-transparent"
+                ? "bg-bd-blue-light text-bd-blue md:border-l-4 border-bd-blue"
+                : "text-bd-ink2 hover:bg-bd-surface md:border-l-4 border-transparent"
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-bd-blue shrink-0"></span>
@@ -100,10 +100,10 @@ export function TopikContent() {
             <button
               key={sec.id}
               onClick={() => setActiveSector(sec.id)}
-              className={`text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 ${
+              className={`shrink-0 text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 whitespace-nowrap ${
                 activeSector === sec.id
-                  ? "bg-bd-blue-light text-bd-blue border-l-4 border-bd-blue"
-                  : "text-bd-ink2 hover:bg-bd-surface border-l-4 border-transparent"
+                  ? "bg-bd-blue-light text-bd-blue md:border-l-4 border-bd-blue"
+                  : "text-bd-ink2 hover:bg-bd-surface md:border-l-4 border-transparent"
               }`}
             >
               <span
@@ -116,7 +116,7 @@ export function TopikContent() {
         </aside>
 
         {/* Sections */}
-        <div className="flex-1 min-w-0 flex flex-col gap-12 py-2">
+        <div className="flex-1 min-w-0 w-full flex flex-col gap-12 py-2">
           {sections.length === 0 && (
             <p className="text-[14px] font-medium text-bd-ink2 py-10 text-center">
               Tidak ada dashboard yang cocok.
