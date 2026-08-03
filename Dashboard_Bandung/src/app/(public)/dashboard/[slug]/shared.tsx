@@ -70,6 +70,7 @@ export function TableauPlaceholder({ title }: { title: string }) {
 export function ChartEmbed({ src, height = 2400, width = 1600 }: { src: string; height?: number; width?: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [renderWidth, setRenderWidth] = useState(width);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -83,17 +84,28 @@ export function ChartEmbed({ src, height = 2400, width = 1600 }: { src: string; 
     return () => observer.disconnect();
   }, []);
 
+  // Ganti src (mis. pindah dashboard) → reset status loading supaya spinner muncul lagi.
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
   const scale = renderWidth / width;
   const renderHeight = Math.round(height * scale);
 
   return (
-    <div ref={containerRef} className="w-full rounded-2xl bg-white overflow-hidden">
+    <div ref={containerRef} className="w-full rounded-2xl bg-white overflow-hidden relative">
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white z-10" style={{ height: renderHeight }}>
+          <div className="w-10 h-10 rounded-full border-4 border-bd-border border-t-bd-blue animate-spin"></div>
+        </div>
+      )}
       <iframe
         src={src}
         width={renderWidth}
         height={renderHeight}
         scrolling="no"
         allowFullScreen
+        onLoad={() => setLoaded(true)}
         sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         style={{ border: 0, display: "block" }}
       />
