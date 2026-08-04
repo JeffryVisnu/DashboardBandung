@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { requireApiKey } from "../middleware/requireApiKey.js";
 import * as pendidikan from "../services/pendidikan.js";
 import * as sd from "../services/sd.js";
+import * as rumahSakit from "../services/rumahSakit.js";
 import * as sectorsService from "../services/sectors.js";
 
 const router = Router();
@@ -79,6 +80,24 @@ const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Requ
       },
     },
   },
+  kesehatan: {
+    "rumah-sakit": {
+      summary: async (req) => rumahSakit.getSummary(await rumahSakit.resolveTahun(req.query.tahun)),
+      trend: async () => rumahSakit.getTrend(),
+      "rumah-sakit-per-kecamatan": async (req) =>
+        rumahSakit.getRumahSakitPerKecamatan(await rumahSakit.resolveTahun(req.query.tahun)),
+      "jenis-status": async (req) => rumahSakit.getJenisStatus(await rumahSakit.resolveTahun(req.query.tahun)),
+      "sebaran-rumah-sakit": async (req) =>
+        rumahSakit.getSebaranRumahSakit(await rumahSakit.resolveTahun(req.query.tahun)),
+    },
+  },
+};
+
+// Label sumber data ditampilkan di field "meta.source" tiap respons bespoke — per sektor supaya
+// tidak selalu tertulis "Dinas Pendidikan" walau sektornya bukan pendidikan.
+const BESPOKE_SOURCE_LABEL: Record<string, string> = {
+  pendidikan: "Dinas Pendidikan Kota Bandung",
+  kesehatan: "Dinas Kesehatan Kota Bandung",
 };
 
 // GET /api/v1/sectors — daftar semua sektor Kota Bandung. Terdaftar sebelum /:sectorId supaya
@@ -112,7 +131,7 @@ router.get("/:sectorId/:dashboardSlug/:endpoint", asyncRoute(async (req, res) =>
     res.status(404).json({ error: "Endpoint tidak ditemukan." });
     return;
   }
-  res.json(envelope(await handler(req), "Dinas Pendidikan Kota Bandung"));
+  res.json(envelope(await handler(req), BESPOKE_SOURCE_LABEL[sectorId] ?? "Diskominfo Kota Bandung"));
 }));
 
 export default router;

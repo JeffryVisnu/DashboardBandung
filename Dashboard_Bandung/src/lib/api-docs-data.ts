@@ -219,7 +219,95 @@ export const API_DOCS: ApiSectorDocs[] = [
   },
   { sectorId: "kependudukan", endpoints: [] },
   { sectorId: "ekonomi", endpoints: [] },
-  { sectorId: "kesehatan", endpoints: [] },
+  {
+    sectorId: "kesehatan",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/kesehatan/rumah-sakit/summary",
+        dashboardSlug: "rumah-sakit",
+        summary: "Ringkasan Rumah Sakit Kota Bandung",
+        description: "Jumlah rumah sakit, rincian swasta/pemerintah, dan jumlah kecamatan yang punya rumah sakit.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": {
+    "tahun": 2025,
+    "jumlahRumahSakit": 42,
+    "jumlahSwasta": 33,
+    "jumlahPemerintah": 9,
+    "jumlahKecamatan": 20
+  },
+  "meta": { "source": "Dinas Kesehatan Kota Bandung", "generatedAt": "2026-08-04T15:40:51.832Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kesehatan/rumah-sakit/trend",
+        dashboardSlug: "rumah-sakit",
+        summary: "Tren Jumlah Rumah Sakit",
+        description: "Jumlah rumah sakit Kota Bandung per tahun.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2023, "jumlahRumahSakit": 42 },
+    { "tahun": 2024, "jumlahRumahSakit": 42 },
+    { "tahun": 2025, "jumlahRumahSakit": 42 }
+  ],
+  "meta": { "source": "Dinas Kesehatan Kota Bandung", "generatedAt": "2026-08-04T15:40:52.038Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kesehatan/rumah-sakit/rumah-sakit-per-kecamatan",
+        dashboardSlug: "rumah-sakit",
+        summary: "Rumah Sakit per Kecamatan",
+        description: "Jumlah rumah sakit di tiap kecamatan Kota Bandung.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "jumlah": 3 },
+    { "kecamatan": "CICENDO", "jumlah": 5 }
+  ],
+  "meta": { "source": "Dinas Kesehatan Kota Bandung", "generatedAt": "2026-08-04T15:40:52.100Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kesehatan/rumah-sakit/jenis-status",
+        dashboardSlug: "rumah-sakit",
+        summary: "Jenis & Status Rumah Sakit",
+        description: "Rincian jumlah rumah sakit berdasarkan jenis (umum, khusus ibu-anak, dll.) dan status kepemilikan (swasta/pemerintah/TNI-Polri).",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": {
+    "tahun": 2025,
+    "jenis": [
+      { "jenis": "RUMAH SAKIT UMUM", "jumlah": 26 },
+      { "jenis": "RS KHUSUS IBU DAN ANAK", "jumlah": 6 }
+    ],
+    "status": [
+      { "status": "SWASTA", "jumlah": 33 },
+      { "status": "PEMERINTAH DAERAH", "jumlah": 3 }
+    ]
+  },
+  "meta": { "source": "Dinas Kesehatan Kota Bandung", "generatedAt": "2026-08-04T15:40:52.630Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kesehatan/rumah-sakit/sebaran-rumah-sakit",
+        dashboardSlug: "rumah-sakit",
+        summary: "Sebaran Titik Rumah Sakit",
+        description: "Daftar tiap rumah sakit lengkap kecamatan, jenis, status, kelas, dan koordinat lokasi — untuk kebutuhan peta.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "jenis": "RUMAH SAKIT UMUM", "status": "SWASTA", "kelas": "C", "latitude": -6.91602, "longitude": 107.59618 }
+  ],
+  "meta": { "source": "Dinas Kesehatan Kota Bandung", "generatedAt": "2026-08-04T15:40:53.000Z" }
+}`,
+      },
+    ],
+  },
   { sectorId: "infrastruktur", endpoints: [] },
   { sectorId: "lingkungan", endpoints: [] },
   { sectorId: "anggaran", endpoints: [] },
