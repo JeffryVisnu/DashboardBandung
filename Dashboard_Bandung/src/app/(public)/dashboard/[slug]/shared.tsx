@@ -67,7 +67,15 @@ export function TableauPlaceholder({ title }: { title: string }) {
  * sebagai Dashboard terpisah pakai link embed Flourish-nya langsung, bukan mengandalkan peta itu
  * merender di dalam laporan Looker Studio yang di-iframe.
  */
-export function ChartEmbed({ src, height = 2400, width = 1600 }: { src: string; height?: number; width?: number }) {
+export function ChartEmbed({
+  src,
+  height = 2400,
+  width = 1600,
+}: {
+  src: string;
+  height?: number;
+  width?: number;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [renderWidth, setRenderWidth] = useState(width);
   const [loaded, setLoaded] = useState(false);
@@ -93,9 +101,15 @@ export function ChartEmbed({ src, height = 2400, width = 1600 }: { src: string; 
   const renderHeight = Math.round(height * scale);
 
   return (
-    <div ref={containerRef} className="w-full rounded-2xl bg-white overflow-hidden relative">
+    <div
+      ref={containerRef}
+      className="w-full rounded-2xl bg-white overflow-hidden relative"
+    >
       {!loaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white z-10" style={{ height: renderHeight }}>
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-white z-10"
+          style={{ height: renderHeight }}
+        >
           <div className="w-10 h-10 rounded-full border-4 border-bd-border border-t-bd-blue animate-spin"></div>
         </div>
       )}

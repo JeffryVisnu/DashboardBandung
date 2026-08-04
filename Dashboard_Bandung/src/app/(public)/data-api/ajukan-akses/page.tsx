@@ -72,6 +72,7 @@ export default function AjukanAksesPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="cth: Andi Saputra"
                   required
                   className="w-full box-border border border-bd-border rounded-lg px-3.5 py-2.5 text-[13px] outline-none"
                 />
@@ -82,6 +83,7 @@ export default function AjukanAksesPage() {
                   type="text"
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
+                  placeholder="cth: Diskominfo Kota Bandung"
                   required
                   className="w-full box-border border border-bd-border rounded-lg px-3.5 py-2.5 text-[13px] outline-none"
                 />
@@ -92,7 +94,7 @@ export default function AjukanAksesPage() {
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="https://"
+                  placeholder="cth: https://bandung.go.id"
                   className="w-full box-border border border-bd-border rounded-lg px-3.5 py-2.5 text-[13px] outline-none"
                 />
               </div>
@@ -102,6 +104,7 @@ export default function AjukanAksesPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="cth: nama@instansi.go.id"
                   required
                   className="w-full box-border border border-bd-border rounded-lg px-3.5 py-2.5 text-[13px] outline-none"
                 />
@@ -111,6 +114,7 @@ export default function AjukanAksesPage() {
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
+                  placeholder="cth: Butuh akses data kependudukan untuk riset kampus."
                   rows={3}
                   className="w-full box-border border border-bd-border rounded-lg px-3.5 py-2.5 text-[13px] outline-none resize-none"
                 />

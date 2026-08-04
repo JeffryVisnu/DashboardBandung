@@ -553,7 +553,7 @@ export const I18N = {
   admin_btn_delete: "Hapus",
   admin_btn_edit: "Edit",
   admin_btn_cancel: "Batal",
-  admin_new_key_ph: "Nama aplikasi/pemilik key…",
+  admin_new_key_ph: "cth: Aplikasi Mobile Diskominfo",
   admin_new_key_btn: "Buat API Key",
   admin_new_key_created: "Key baru dibuat, salin sekarang:",
   admin_status_active: "Aktif",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { I18N } from "@/lib/placeholder-data";
 import { resolveLogoSrc, type SiteSettings } from "@/lib/useSiteSettings";
 
@@ -64,6 +64,16 @@ const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: "sektor", label: "Sektor & Dashboard" },
   { id: "api", label: "Permintaan API & Aplikasi Eksternal" },
 ];
+
+/** Label di atas field, dipakai semua form admin supaya konsisten. */
+function Field({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+  return (
+    <div className={className}>
+      <label className="block text-[11px] font-semibold text-white/60 mb-1">{label}</label>
+      {children}
+    </div>
+  );
+}
 
 export default function EksekutifPage() {
   const s = I18N;
@@ -456,6 +466,7 @@ export default function EksekutifPage() {
                   type="email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="cth: admin@bandung.go.id"
                   className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3.5 py-2.5 text-[13px] text-white outline-none"
                   required
                 />
@@ -536,24 +547,25 @@ export default function EksekutifPage() {
             {siteForm && (
               <form onSubmit={saveSiteSettings} className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {([
-                  ["heroEyebrow", "Eyebrow"],
-                  ["heroTitle", "Judul"],
-                  ["heroSub", "Deskripsi"],
-                  ["kpiPopLabel", "Label Populasi"],
-                  ["kpiPopVal", "Nilai Populasi"],
-                  ["kpiAreaLabel", "Label Luas"],
-                  ["kpiAreaVal", "Nilai Luas"],
-                  ["kpiKecLabel", "Label Kecamatan"],
-                  ["kpiKecVal", "Nilai Kecamatan"],
-                  ["kpiKelLabel", "Label Kelurahan"],
-                  ["kpiKelVal", "Nilai Kelurahan"],
-                ] as const).map(([key, label]) => (
+                  ["heroEyebrow", "Eyebrow", "cth: Portal Data Terbuka Kota Bandung"],
+                  ["heroTitle", "Judul", "cth: Dashboard Bandung"],
+                  ["heroSub", "Deskripsi", "cth: Satu kanal angka, metrik, dan visualisasi data resmi Kota Bandung."],
+                  ["kpiPopLabel", "Label Populasi", "cth: Populasi"],
+                  ["kpiPopVal", "Nilai Populasi", "cth: 2,52 Juta"],
+                  ["kpiAreaLabel", "Label Luas", "cth: Luas Wilayah"],
+                  ["kpiAreaVal", "Nilai Luas", "cth: 167,3 km²"],
+                  ["kpiKecLabel", "Label Kecamatan", "cth: Kecamatan"],
+                  ["kpiKecVal", "Nilai Kecamatan", "cth: 30"],
+                  ["kpiKelLabel", "Label Kelurahan", "cth: Kelurahan"],
+                  ["kpiKelVal", "Nilai Kelurahan", "cth: 151"],
+                ] as const).map(([key, label, ph]) => (
                   <div key={key}>
                     <label className="block text-[11px] font-semibold text-white/60 mb-1">{label}</label>
                     {key === "heroSub" ? (
                       <textarea
                         value={siteForm[key] ?? ""}
                         onChange={(e) => setSiteForm((prev) => ({ ...prev!, [key]: e.target.value }))}
+                        placeholder={ph}
                         rows={2}
                         className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12.5px] text-white outline-none resize-none"
                       />
@@ -562,6 +574,7 @@ export default function EksekutifPage() {
                         type="text"
                         value={siteForm[key] ?? ""}
                         onChange={(e) => setSiteForm((prev) => ({ ...prev!, [key]: e.target.value }))}
+                        placeholder={ph}
                         className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12.5px] text-white outline-none"
                       />
                     )}
@@ -588,13 +601,25 @@ export default function EksekutifPage() {
             <div className="font-bold text-[15px] text-white mb-4">{s.admin_sectors_title}</div>
 
             <form onSubmit={createSector} className="grid grid-cols-1 md:grid-cols-4 gap-2.5 mb-4">
-              <input placeholder="id (slug)" value={sectorForm.id} onChange={(e) => setSectorForm({ ...sectorForm, id: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
-              <input placeholder="code" value={sectorForm.code} onChange={(e) => setSectorForm({ ...sectorForm, code: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
-              <input placeholder="nama" value={sectorForm.name} onChange={(e) => setSectorForm({ ...sectorForm, name: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
-              <input placeholder="deskripsi" value={sectorForm.desc} onChange={(e) => setSectorForm({ ...sectorForm, desc: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none md:col-span-2" />
-              <input type="color" value={sectorForm.color} onChange={(e) => setSectorForm({ ...sectorForm, color: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg h-9 w-full" />
-              <input type="color" value={sectorForm.tint} onChange={(e) => setSectorForm({ ...sectorForm, tint: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg h-9 w-full" />
-              <button type="submit" disabled={creatingSector} className="bg-bd-gold border-none text-bd-ink font-bold px-4 py-2 rounded-lg cursor-pointer text-[12px] disabled:opacity-60 md:col-span-2">
+              <Field label="ID (Slug)">
+                <input placeholder="cth: kesehatan" value={sectorForm.id} onChange={(e) => setSectorForm({ ...sectorForm, id: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+              </Field>
+              <Field label="Kode">
+                <input placeholder="cth: KES" value={sectorForm.code} onChange={(e) => setSectorForm({ ...sectorForm, code: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+              </Field>
+              <Field label="Nama Sektor">
+                <input placeholder="cth: Kesehatan" value={sectorForm.name} onChange={(e) => setSectorForm({ ...sectorForm, name: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+              </Field>
+              <Field label="Deskripsi" className="md:col-span-2">
+                <input placeholder="cth: Fasilitas kesehatan, kunjungan puskesmas, dan layanan kesehatan masyarakat." value={sectorForm.desc} onChange={(e) => setSectorForm({ ...sectorForm, desc: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+              </Field>
+              <Field label="Warna Utama">
+                <input type="color" value={sectorForm.color} onChange={(e) => setSectorForm({ ...sectorForm, color: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg h-9 w-full" />
+              </Field>
+              <Field label="Warna Latar (Tint)">
+                <input type="color" value={sectorForm.tint} onChange={(e) => setSectorForm({ ...sectorForm, tint: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg h-9 w-full" />
+              </Field>
+              <button type="submit" disabled={creatingSector} className="bg-bd-gold border-none text-bd-ink font-bold px-4 py-2 rounded-lg cursor-pointer text-[12px] disabled:opacity-60 md:col-span-2 self-end">
                 {creatingSector ? "…" : s.admin_add_sector_btn}
               </button>
             </form>
@@ -651,10 +676,18 @@ export default function EksekutifPage() {
                 </div>
 
                 <form onSubmit={createDataset} className="grid grid-cols-1 md:grid-cols-6 gap-2.5 mb-1.5">
-                  <input placeholder="judul dashboard" value={datasetForm.title} onChange={(e) => setDatasetForm({ ...datasetForm, title: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none md:col-span-2" />
-                  <input placeholder="iframe URL" value={datasetForm.iframeUrl} onChange={(e) => setDatasetForm({ ...datasetForm, iframeUrl: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none md:col-span-2" />
-                  <input type="number" placeholder="width (px)" value={datasetForm.width} onChange={(e) => setDatasetForm({ ...datasetForm, width: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
-                  <input type="number" placeholder="height (px)" value={datasetForm.height} onChange={(e) => setDatasetForm({ ...datasetForm, height: e.target.value })} className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+                  <Field label="Judul Dashboard" className="md:col-span-2">
+                    <input placeholder="cth: Jumlah Rumah Sakit" value={datasetForm.title} onChange={(e) => setDatasetForm({ ...datasetForm, title: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+                  </Field>
+                  <Field label="Iframe URL (Embed)" className="md:col-span-2">
+                    <input placeholder="cth: https://lookerstudio.google.com/embed/reporting/xxxx/page/yyyy" value={datasetForm.iframeUrl} onChange={(e) => setDatasetForm({ ...datasetForm, iframeUrl: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+                  </Field>
+                  <Field label="Width (px)">
+                    <input type="number" placeholder="cth: 1600" value={datasetForm.width} onChange={(e) => setDatasetForm({ ...datasetForm, width: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+                  </Field>
+                  <Field label="Height (px)">
+                    <input type="number" placeholder="cth: 2400" value={datasetForm.height} onChange={(e) => setDatasetForm({ ...datasetForm, height: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
+                  </Field>
                   <button type="submit" disabled={creatingDataset} className="bg-bd-gold border-none text-bd-ink font-bold px-4 py-2 rounded-lg cursor-pointer text-[12px] disabled:opacity-60 md:col-span-6">
                     {creatingDataset ? "…" : s.admin_add_dataset_btn}
                   </button>
@@ -671,30 +704,40 @@ export default function EksekutifPage() {
                         onSubmit={saveEditDataset}
                         className="grid grid-cols-1 md:grid-cols-6 gap-2.5 bg-white/5 rounded-lg px-3 py-2"
                       >
-                        <input
-                          value={editDatasetForm.title}
-                          onChange={(e) => setEditDatasetForm({ ...editDatasetForm, title: e.target.value })}
-                          className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none md:col-span-2"
-                        />
-                        <input
-                          value={editDatasetForm.iframeUrl}
-                          onChange={(e) => setEditDatasetForm({ ...editDatasetForm, iframeUrl: e.target.value })}
-                          className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none md:col-span-2"
-                        />
-                        <input
-                          type="number"
-                          placeholder="width (px)"
-                          value={editDatasetForm.width}
-                          onChange={(e) => setEditDatasetForm({ ...editDatasetForm, width: e.target.value })}
-                          className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none"
-                        />
-                        <input
-                          type="number"
-                          placeholder="height (px)"
-                          value={editDatasetForm.height}
-                          onChange={(e) => setEditDatasetForm({ ...editDatasetForm, height: e.target.value })}
-                          className="bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none"
-                        />
+                        <Field label="Judul Dashboard" className="md:col-span-2">
+                          <input
+                            placeholder="cth: Jumlah Rumah Sakit"
+                            value={editDatasetForm.title}
+                            onChange={(e) => setEditDatasetForm({ ...editDatasetForm, title: e.target.value })}
+                            className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none"
+                          />
+                        </Field>
+                        <Field label="Iframe URL (Embed)" className="md:col-span-2">
+                          <input
+                            placeholder="cth: https://lookerstudio.google.com/embed/reporting/xxxx/page/yyyy"
+                            value={editDatasetForm.iframeUrl}
+                            onChange={(e) => setEditDatasetForm({ ...editDatasetForm, iframeUrl: e.target.value })}
+                            className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none"
+                          />
+                        </Field>
+                        <Field label="Width (px)">
+                          <input
+                            type="number"
+                            placeholder="cth: 1600"
+                            value={editDatasetForm.width}
+                            onChange={(e) => setEditDatasetForm({ ...editDatasetForm, width: e.target.value })}
+                            className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none"
+                          />
+                        </Field>
+                        <Field label="Height (px)">
+                          <input
+                            type="number"
+                            placeholder="cth: 2400"
+                            value={editDatasetForm.height}
+                            onChange={(e) => setEditDatasetForm({ ...editDatasetForm, height: e.target.value })}
+                            className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none"
+                          />
+                        </Field>
                         <div className="flex gap-2 md:col-span-6">
                           <button
                             type="submit"
@@ -790,14 +833,16 @@ export default function EksekutifPage() {
           <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-6">
             <div className="font-bold text-[15px] text-white p-5.5 pb-4">{s.admin_api_keys_title}</div>
 
-            <form onSubmit={createApiKey} className="flex items-center gap-2.5 px-5.5 pb-4">
-              <input
-                type="text"
-                value={newKeyLabel}
-                onChange={(e) => setNewKeyLabel(e.target.value)}
-                placeholder={s.admin_new_key_ph}
-                className="flex-1 max-w-xs bg-black/20 border border-white/15 rounded-lg px-3.5 py-2 text-[12.5px] text-white outline-none"
-              />
+            <form onSubmit={createApiKey} className="flex items-end gap-2.5 px-5.5 pb-4">
+              <Field label="Label API Key" className="flex-1 max-w-xs">
+                <input
+                  type="text"
+                  value={newKeyLabel}
+                  onChange={(e) => setNewKeyLabel(e.target.value)}
+                  placeholder={s.admin_new_key_ph}
+                  className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3.5 py-2 text-[12.5px] text-white outline-none"
+                />
+              </Field>
               <button
                 type="submit"
                 disabled={creatingKey}
@@ -823,16 +868,18 @@ export default function EksekutifPage() {
             )}
 
             <div className="px-5.5 pb-3">
-              <input
-                type="text"
-                value={apiKeySearch}
-                onChange={(e) => {
-                  setApiKeySearch(e.target.value);
-                  setApiKeyPage(1);
-                }}
-                placeholder="Cari label..."
-                className="w-full max-w-xs bg-black/20 border border-white/15 rounded-lg px-3.5 py-2 text-[12.5px] text-white outline-none"
-              />
+              <Field label="Cari Label" className="max-w-xs">
+                <input
+                  type="text"
+                  value={apiKeySearch}
+                  onChange={(e) => {
+                    setApiKeySearch(e.target.value);
+                    setApiKeyPage(1);
+                  }}
+                  placeholder="cth: mobile"
+                  className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3.5 py-2 text-[12.5px] text-white outline-none"
+                />
+              </Field>
             </div>
 
             <div className="overflow-x-auto">
