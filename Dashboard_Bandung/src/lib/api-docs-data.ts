@@ -217,7 +217,86 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
     ],
   },
-  { sectorId: "kependudukan", endpoints: [] },
+  {
+    sectorId: "kependudukan",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/kependudukan/demografi-dan-kepadatan-penduduk-kota-bandung/summary",
+        dashboardSlug: "demografi-dan-kepadatan-penduduk-kota-bandung",
+        summary: "Ringkasan Demografi Kota Bandung",
+        description: "Rata-rata kepadatan penduduk, total kepala keluarga, total luas wilayah, dan jumlah kecamatan.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": {
+    "tahun": 2025,
+    "jumlahKecamatan": 30,
+    "rataKepadatan": 16540.33,
+    "totalKepalaKeluarga": 864954,
+    "totalLuasWilayah": 167.31
+  },
+  "meta": { "source": "Disdukcapil Kota Bandung", "generatedAt": "2026-08-13T01:18:21.052Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kependudukan/demografi-dan-kepadatan-penduduk-kota-bandung/trend",
+        dashboardSlug: "demografi-dan-kepadatan-penduduk-kota-bandung",
+        summary: "Tren Kepadatan Penduduk",
+        description: "Rata-rata kepadatan penduduk (jiwa/km²) Kota Bandung per tahun, 2018–2025.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2018, "rataKepadatan": 15531.23 },
+    { "tahun": 2024, "rataKepadatan": 16458.43 },
+    { "tahun": 2025, "rataKepadatan": 16540.33 }
+  ],
+  "meta": { "source": "Disdukcapil Kota Bandung", "generatedAt": "2026-08-13T01:18:21.171Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kependudukan/demografi-dan-kepadatan-penduduk-kota-bandung/kepadatan-per-kecamatan",
+        dashboardSlug: "demografi-dan-kepadatan-penduduk-kota-bandung",
+        summary: "Kepadatan Penduduk per Kecamatan",
+        description: "Kepadatan penduduk (jiwa/km²) di tiap kecamatan Kota Bandung.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "kepadatan": 26853, "satuan": "JIWA/KM2" },
+    { "kecamatan": "ANTAPANI", "kepadatan": 21854, "satuan": "JIWA/KM2" }
+  ],
+  "meta": { "source": "Disdukcapil Kota Bandung", "generatedAt": "2026-08-13T01:18:21.300Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kependudukan/demografi-dan-kepadatan-penduduk-kota-bandung/kepala-keluarga-per-kecamatan",
+        dashboardSlug: "demografi-dan-kepadatan-penduduk-kota-bandung",
+        summary: "Kepala Keluarga per Kecamatan",
+        description: "Jumlah kepala keluarga per kecamatan, dirinci berdasarkan jenis kelamin kepala keluarga.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "jumlahKkLaki": 25795, "jumlahKkPerempuan": 8262, "totalKk": 34057 }
+  ],
+  "meta": { "source": "Disdukcapil Kota Bandung", "generatedAt": "2026-08-13T01:18:21.400Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/kependudukan/demografi-dan-kepadatan-penduduk-kota-bandung/luas-wilayah-per-kecamatan",
+        dashboardSlug: "demografi-dan-kepadatan-penduduk-kota-bandung",
+        summary: "Luas Wilayah per Kecamatan",
+        description: "Luas wilayah (km²) tiap kecamatan Kota Bandung. Data batas administratif relatif tetap, tidak berubah tiap tahun.",
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "luasWilayah": 3.71, "satuan": "KILOMETER PERSEGI", "tahun": 2022 }
+  ],
+  "meta": { "source": "Disdukcapil Kota Bandung", "generatedAt": "2026-08-13T01:18:21.500Z" }
+}`,
+      },
+    ],
+  },
   { sectorId: "ekonomi", endpoints: [] },
   {
     sectorId: "kesehatan",

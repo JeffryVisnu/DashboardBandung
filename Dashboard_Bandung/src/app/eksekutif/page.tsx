@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { I18N } from "@/lib/placeholder-data";
 import { resolveLogoSrc, type SiteSettings } from "@/lib/useSiteSettings";
 
@@ -79,6 +79,7 @@ export default function EksekutifPage() {
   const s = I18N;
 
   const [activeTab, setActiveTab] = useState<AdminTab>("situs");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [checkingStoredToken, setCheckingStoredToken] = useState(true);
   const [loginEmail, setLoginEmail] = useState("");
@@ -296,6 +297,13 @@ export default function EksekutifPage() {
     await loadSectorDatasets(sectorId);
   }
 
+  function cancelManageDatasets() {
+    setSelectedSectorId(null);
+    setSectorDatasets(null);
+    setDatasetForm(EMPTY_DATASET_FORM);
+    cancelEditDataset();
+  }
+
   async function createDataset(e: FormEvent) {
     e.preventDefault();
     if (!selectedSectorId) return;
@@ -499,23 +507,39 @@ export default function EksekutifPage() {
       ) : (
         /* Admin panel */
         <div className="p-4 md:p-8">
-          <div className="text-[18px] md:text-[21px] font-extrabold text-white mb-4 md:mb-6">{s.exec_overview_title}</div>
+          <div className="flex items-center gap-3 mb-4 md:mb-6">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((v) => !v)}
+              aria-label={sidebarOpen ? "Tutup sidebar" : "Buka sidebar"}
+              aria-expanded={sidebarOpen}
+              className="flex items-center justify-center w-9 h-9 rounded-lg border border-white/15 text-white/70 hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div className="text-[18px] md:text-[21px] font-extrabold text-white">{s.exec_overview_title}</div>
+          </div>
 
           <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-stretch md:items-start">
-            {/* Sidebar — strip horizontal di mobile, kolom tetap di desktop */}
-            <aside className="w-full md:w-64 shrink-0 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible thin-scroll md:sticky md:top-6 pb-1 md:pb-0">
-              {ADMIN_TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`shrink-0 whitespace-nowrap text-left px-4 py-2.5 rounded-xl text-[12.5px] md:text-[13px] font-bold transition-colors cursor-pointer border-none ${
-                    activeTab === tab.id ? "bg-bd-gold text-bd-ink" : "bg-white/5 text-white/70 hover:bg-white/10"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </aside>
+            {/* Sidebar — dropdown vertikal yang bisa ditutup di mobile (tombol di atas), kolom tetap di desktop */}
+            {sidebarOpen && (
+              <aside className="w-full md:w-64 shrink-0 flex flex-col gap-1 md:sticky md:top-6">
+                {ADMIN_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      if (window.innerWidth < 768) setSidebarOpen(false);
+                    }}
+                    className={`text-left px-4 py-2.5 rounded-xl text-[12.5px] md:text-[13px] font-bold leading-snug transition-colors cursor-pointer border-none ${
+                      activeTab === tab.id ? "bg-bd-gold text-bd-ink" : "bg-white/5 text-white/70 hover:bg-white/10"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </aside>
+            )}
 
             {/* Content */}
             <div className="flex-1 min-w-0 w-full">
@@ -637,45 +661,48 @@ export default function EksekutifPage() {
                 {(sectorList ?? []).map((row) => {
                   const visibility = sectorVisibility?.find((v) => v.sectorId === row.id);
                   return (
-                    <tr key={row.id} className="border-t border-white/5">
-                      <td className="py-2.5 px-3 font-semibold text-[12.5px] text-white flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: row.color }}></span>
-                        {row.name}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        {visibility && (
+                    <Fragment key={row.id}>
+                      <tr className="border-t border-white/5">
+                        <td className="py-2.5 px-3 font-semibold text-[12.5px] text-white flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: row.color }}></span>
+                          {row.name}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          {visibility && (
+                            <button
+                              onClick={() => toggleSectorVisibility(visibility)}
+                              className={`font-bold text-[10.5px] px-2.5 py-1.5 rounded-md cursor-pointer uppercase tracking-wider border-none ${
+                                visibility.isVisible ? "bg-bd-green-light text-bd-green" : "bg-white/10 text-white/50"
+                              }`}
+                            >
+                              {visibility.isVisible ? s.admin_visibility_shown : s.admin_visibility_hidden}
+                            </button>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3 text-right whitespace-nowrap">
                           <button
-                            onClick={() => toggleSectorVisibility(visibility)}
-                            className={`font-bold text-[10.5px] px-2.5 py-1.5 rounded-md cursor-pointer uppercase tracking-wider border-none ${
-                              visibility.isVisible ? "bg-bd-green-light text-bd-green" : "bg-white/10 text-white/50"
+                            onClick={() => (selectedSectorId === row.id ? cancelManageDatasets() : selectSectorForDatasets(row.id))}
+                            className={`font-bold text-[11.5px] px-3 py-1.5 rounded-md cursor-pointer border-[1.5px] transition-colors mr-2 ${
+                              selectedSectorId === row.id ? "border-bd-gold bg-bd-gold text-bd-ink" : "border-white/20 text-white hover:bg-white/10"
                             }`}
                           >
-                            {visibility.isVisible ? s.admin_visibility_shown : s.admin_visibility_hidden}
+                            {selectedSectorId === row.id ? s.admin_btn_cancel : s.admin_manage_datasets_btn}
                           </button>
-                        )}
-                      </td>
-                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                        <button onClick={() => selectSectorForDatasets(row.id)} className="font-bold text-[11.5px] px-3 py-1.5 rounded-md cursor-pointer border-[1.5px] border-white/20 text-white hover:bg-white/10 transition-colors mr-2">
-                          {s.admin_manage_datasets_btn}
-                        </button>
-                        <button onClick={() => deleteSector(row)} className="font-bold text-[11.5px] px-3 py-1.5 rounded-md cursor-pointer border-[1.5px] border-bd-red/40 text-bd-red hover:bg-bd-red/10 transition-colors">
-                          {s.admin_btn_delete}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            </div>
+                          <button onClick={() => deleteSector(row)} className="font-bold text-[11.5px] px-3 py-1.5 rounded-md cursor-pointer border-[1.5px] border-bd-red/40 text-bd-red hover:bg-bd-red/10 transition-colors">
+                            {s.admin_btn_delete}
+                          </button>
+                        </td>
+                      </tr>
 
-            {selectedSectorId && (
-              <div className="bg-black/20 rounded-lg p-4">
-                <div className="font-bold text-[13px] text-white mb-3">
-                  {s.admin_datasets_for} {sectorList?.find((r) => r.id === selectedSectorId)?.name}
-                </div>
+                      {selectedSectorId === row.id && (
+                        <tr>
+                          <td colSpan={3} className="p-3">
+                            <div className="bg-black/20 rounded-lg p-4">
+                              <div className="font-bold text-[13px] text-white mb-3">
+                                {s.admin_datasets_for} {row.name}
+                              </div>
 
-                <form onSubmit={createDataset} className="grid grid-cols-1 md:grid-cols-6 gap-2.5 mb-1.5">
+                              <form onSubmit={createDataset} className="grid grid-cols-1 md:grid-cols-6 gap-2.5 mb-1.5">
                   <Field label="Judul Dashboard" className="md:col-span-2">
                     <input placeholder="cth: Jumlah Rumah Sakit" value={datasetForm.title} onChange={(e) => setDatasetForm({ ...datasetForm, title: e.target.value })} className="w-full box-border bg-black/20 border border-white/15 rounded-lg px-3 py-2 text-[12px] text-white outline-none" />
                   </Field>
@@ -773,8 +800,16 @@ export default function EksekutifPage() {
                     <div className="text-[12px] text-white/50 py-2">—</div>
                   )}
                 </div>
-              </div>
-            )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+            </div>
           </div>
               )}
 

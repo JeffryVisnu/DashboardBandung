@@ -3,6 +3,7 @@ import { requireApiKey } from "../middleware/requireApiKey.js";
 import * as pendidikan from "../services/pendidikan.js";
 import * as sd from "../services/sd.js";
 import * as rumahSakit from "../services/rumahSakit.js";
+import * as kependudukan from "../services/kependudukan.js";
 import * as sectorsService from "../services/sectors.js";
 
 const router = Router();
@@ -91,6 +92,17 @@ const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Requ
         rumahSakit.getSebaranRumahSakit(await rumahSakit.resolveTahun(req.query.tahun)),
     },
   },
+  kependudukan: {
+    "demografi-dan-kepadatan-penduduk-kota-bandung": {
+      summary: async (req) => kependudukan.getSummary(await kependudukan.resolveTahun(req.query.tahun)),
+      trend: async () => kependudukan.getTrend(),
+      "kepadatan-per-kecamatan": async (req) =>
+        kependudukan.getKepadatanPerKecamatan(await kependudukan.resolveTahun(req.query.tahun)),
+      "kepala-keluarga-per-kecamatan": async (req) =>
+        kependudukan.getKepalaKeluargaPerKecamatan(await kependudukan.resolveTahun(req.query.tahun)),
+      "luas-wilayah-per-kecamatan": async () => kependudukan.getLuasWilayahPerKecamatan(),
+    },
+  },
 };
 
 // Label sumber data ditampilkan di field "meta.source" tiap respons bespoke — per sektor supaya
@@ -98,6 +110,7 @@ const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Requ
 const BESPOKE_SOURCE_LABEL: Record<string, string> = {
   pendidikan: "Dinas Pendidikan Kota Bandung",
   kesehatan: "Dinas Kesehatan Kota Bandung",
+  kependudukan: "Disdukcapil Kota Bandung",
 };
 
 // GET /api/v1/sectors — daftar semua sektor Kota Bandung. Terdaftar sebelum /:sectorId supaya

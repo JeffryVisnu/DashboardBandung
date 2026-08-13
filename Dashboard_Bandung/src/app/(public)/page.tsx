@@ -166,7 +166,15 @@ export default function Home() {
                     <h3 className="text-[19px] font-extrabold text-bd-ink">{sector.name}</h3>
                   </div>
 
-                  <div className="text-[14px] font-bold text-bd-ink2 leading-snug">{item.title}</div>
+                  <div className="text-[14px] font-bold text-bd-ink2 leading-snug mb-4">{item.title}</div>
+
+                  <div className="flex items-center gap-1.5 text-[12px] font-bold text-bd-ink3">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    {item.views.toLocaleString("id")} {s.dashboard_views}
+                  </div>
                 </Link>
               ))}
             </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { I18N } from "@/lib/placeholder-data";
 import { useVisibleSectors } from "@/lib/useVisibleSectors";
 import { useAllSectorDatasets } from "@/lib/useAllSectorDatasets";
@@ -12,9 +12,17 @@ export function TopikContent() {
   const sectors = useVisibleSectors();
   const sectorDashboards = useAllSectorDatasets();
   const searchParams = useSearchParams();
-  const initialSector = searchParams.get("sektor") ?? "semua";
-  const [activeSector, setActiveSector] = useState<string>(initialSector);
+  const sektorParam = searchParams.get("sektor") ?? "semua";
+  const [activeSector, setActiveSector] = useState<string>(sektorParam);
   const [query, setQuery] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Halaman ini tidak remount kalau linknya diklik saat sudah berada di /topik (mis. dari
+  // footer, sektor lain) — cuma query string yang berubah, jadi state filter perlu disinkron
+  // ulang tiap kali "sektor" di URL berubah, bukan cuma dibaca sekali di awal.
+  useEffect(() => {
+    setActiveSector(sektorParam);
+  }, [sektorParam]);
 
   const sectorsToShow =
     activeSector === "semua"
@@ -83,11 +91,33 @@ export function TopikContent() {
 
       {/* Sidebar + Content */}
       <section className="max-w-350 mx-auto px-4 md:px-10 flex flex-col md:flex-row gap-4 md:gap-8 items-start">
-        {/* Sidebar — strip horizontal di mobile, kolom tetap di desktop */}
-        <aside className="w-full md:w-60 shrink-0 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible thin-scroll md:sticky md:top-6 pb-1 md:pb-0">
+        {/* Tombol buka/tutup sidebar — cuma tampil di mobile, di desktop sidebar selalu terbuka */}
+        <button
+          type="button"
+          onClick={() => setSidebarOpen((v) => !v)}
+          aria-expanded={sidebarOpen}
+          className="md:hidden w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-bd-surface text-[13px] font-bold text-bd-ink"
+        >
+          <span className="flex items-center gap-2">
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: activeSector === "semua" ? "#1F5AA8" : sectors.find((sec) => sec.id === activeSector)?.color }}
+            ></span>
+            {activeSector === "semua" ? s.sidebar_all_topics : sectors.find((sec) => sec.id === activeSector)?.name}
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${sidebarOpen ? "rotate-180" : ""}`}>
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        {/* Sidebar — dropdown yang bisa dibuka/tutup di mobile, kolom tetap terbuka di desktop */}
+        <aside className={`${sidebarOpen ? "flex" : "hidden"} md:flex w-full md:w-60 shrink-0 flex-col gap-1 md:sticky md:top-6`}>
           <button
-            onClick={() => setActiveSector("semua")}
-            className={`shrink-0 text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 whitespace-nowrap ${
+            onClick={() => {
+              setActiveSector("semua");
+              setSidebarOpen(false);
+            }}
+            className={`text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 ${
               activeSector === "semua"
                 ? "bg-bd-blue-light text-bd-blue md:border-l-4 border-bd-blue"
                 : "text-bd-ink2 hover:bg-bd-surface md:border-l-4 border-transparent"
@@ -99,8 +129,11 @@ export function TopikContent() {
           {sectors.map((sec) => (
             <button
               key={sec.id}
-              onClick={() => setActiveSector(sec.id)}
-              className={`shrink-0 text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 whitespace-nowrap ${
+              onClick={() => {
+                setActiveSector(sec.id);
+                setSidebarOpen(false);
+              }}
+              className={`text-left px-4 py-3 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-3 ${
                 activeSector === sec.id
                   ? "bg-bd-blue-light text-bd-blue md:border-l-4 border-bd-blue"
                   : "text-bd-ink2 hover:bg-bd-surface md:border-l-4 border-transparent"
