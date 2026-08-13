@@ -186,16 +186,15 @@ function slugify(text: string): string {
   );
 }
 
-// Judul dashboard dipakai sebagai slug URL API (/v1/dashboards/:slug) — kalau judulnya sama
-// dengan dashboard lain, tambahkan akhiran -2, -3, dst. supaya tetap unik.
-async function uniqueDatasetSlug(title: string, excludeId?: number): Promise<string> {
+// Judul dashboard dipakai sebagai slug URL API (/v1/dashboards/:slug) saat dashboard dibuat —
+// kalau judulnya sama dengan dashboard lain, tambahkan akhiran -2, -3, dst. supaya tetap unik.
+// Slug ini permanen (lihat updateDataset), jadi cuma dipanggil sekali di createDataset.
+async function uniqueDatasetSlug(title: string): Promise<string> {
   const base = slugify(title);
   let slug = base;
   let n = 2;
   for (;;) {
-    const result = excludeId
-      ? await pool.query(`SELECT id FROM sector_datasets WHERE slug = $1 AND id != $2`, [slug, excludeId])
-      : await pool.query(`SELECT id FROM sector_datasets WHERE slug = $1`, [slug]);
+    const result = await pool.query(`SELECT id FROM sector_datasets WHERE slug = $1`, [slug]);
     if (result.rows.length === 0) return slug;
     slug = `${base}-${n}`;
     n++;
@@ -221,9 +220,12 @@ export async function createDataset(input: DatasetInput): Promise<SectorDatasetD
 }
 
 export async function updateDataset(id: number, input: Partial<DatasetInput>): Promise<SectorDatasetDTO | null> {
+  // Slug SENGAJA tidak dibuat ulang di sini walau judul berubah — slug jadi permanen sejak
+  // dashboard dibuat, supaya URL publik (/dashboard/..., /v1/.../:slug/...) dan endpoint bespoke
+  // yang terdaftar berdasarkan slug (lihat BESPOKE_ENDPOINTS di routes/v1.ts) tidak putus setiap
+  // kali admin ganti judul dashboard.
   const columns: Record<string, unknown> = {
     title: input.title,
-    slug: input.title !== undefined ? await uniqueDatasetSlug(input.title, id) : undefined,
     iframe_url: input.iframeUrl !== undefined ? normalizeIframeUrl(input.iframeUrl) : undefined,
     width: input.width,
     height: input.height,

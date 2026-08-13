@@ -4,16 +4,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { I18N } from "@/lib/placeholder-data";
 import { useVisibleSectors } from "@/lib/useVisibleSectors";
+import { useSiteSettings, resolveLogoSrc } from "@/lib/useSiteSettings";
 
 export function Footer() {
   const s = I18N;
   const sectors = useVisibleSectors();
+  const site = useSiteSettings();
 
   return (
     <footer className="bg-[#0F2F57] text-white pt-16 pb-8">
       <div className="max-w-350 mx-auto px-10 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         <div className="md:col-span-1">
-          <Image src="/assets/logo-diskominfo.jpg" alt="Diskominfo Kota Bandung" height={40} width={140} className="h-10 w-auto mb-6 bg-white p-1.5 rounded-lg shadow-sm" />
+          <Image src={resolveLogoSrc(site.footerLogoPath)} alt="Diskominfo Kota Bandung" height={40} width={140} unoptimized className="h-10 w-auto mb-6" />
           <p className="text-[13px] text-white/80 leading-relaxed font-medium">
             {s.footer_about_body}
           </p>
@@ -26,6 +28,8 @@ export function Footer() {
             <li><Link href="/topik" className="hover:text-white transition-colors">{s.nav_topics}</Link></li>
             <li><Link href="/data-api" className="hover:text-white transition-colors">{s.nav_api}</Link></li>
             <li><Link href="/eksekutif" className="hover:text-white transition-colors">{s.btn_exec}</Link></li>
+            <li><Link href="/ketentuan-penggunaan" className="hover:text-white transition-colors">{s.footer_terms_title}</Link></li>
+            <li><Link href="/kebijakan-privasi" className="hover:text-white transition-colors">{s.footer_privacy_title}</Link></li>
           </ul>
         </div>
 

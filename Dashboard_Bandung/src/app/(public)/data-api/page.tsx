@@ -194,7 +194,7 @@ export default function DataApiPage() {
           <div className="text-[14px] font-bold text-bd-ink mb-3.5">{s.api_quickstart_title}</div>
           <div className="bg-bd-blue-dark rounded-[10px] px-4.5 py-4 overflow-x-auto">
             <pre className="m-0 font-mono text-[11.5px] leading-relaxed text-[#CFE3F7] whitespace-pre">
-{`curl ${API_BASE}/v1/pendidikan/jumlah-smp/summary \\
+{`curl ${API_BASE}/v1/pendidikan/dashboard-sekolah-menengah-pertama/summary \\
   -H "Authorization: Bearer bdg_live_xxxxxxxxxxxxxxxxxxxx"`}
             </pre>
           </div>

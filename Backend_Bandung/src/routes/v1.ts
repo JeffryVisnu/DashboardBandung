@@ -32,7 +32,7 @@ function envelope(data: unknown, source = "Diskominfo Kota Bandung") {
  */
 const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Request) => Promise<unknown>>>> = {
   pendidikan: {
-    "jumlah-smp": {
+    "dashboard-sekolah-menengah-pertama": {
       summary: async (req) => {
         const { tahun, semester } = await pendidikan.resolvePeriod(req.query.tahun, req.query.semester);
         return pendidikan.getSummary(tahun, semester);
@@ -56,7 +56,7 @@ const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Requ
         return pendidikan.getSebaranSekolah(tahun, semester, typeof status === "string" ? status : undefined);
       },
     },
-    "jumlah-sd": {
+    "dashboard-sekolah-dasar": {
       summary: async (req) => {
         const { tahun, semester } = await sd.resolvePeriod(req.query.tahun, req.query.semester);
         return sd.getSummary(tahun, semester);

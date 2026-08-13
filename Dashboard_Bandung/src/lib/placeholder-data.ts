@@ -427,8 +427,8 @@ export const I18N = {
   utility_text: "Portal Resmi Pemerintah Kota Bandung",
   nav_home: "Beranda",
   nav_topics: "Topik & Sektor",
-  nav_api: "Data API",
-  btn_exec: "Login Eksekutif",
+  nav_api: "Dokumentasi API",
+  btn_exec: "Login",
   tagline: "Satu Data, Satu Bandung",
   search_ph: 'Cari indikator, mis. "kepadatan penduduk"…',
   hero_eyebrow: "Portal Data Terbuka Kota Bandung",
@@ -504,7 +504,7 @@ export const I18N = {
   api_req_submitting: "Mengirim…",
   api_req_success_title: "Permohonan Terkirim",
   api_req_success_body: "Permohonan Anda sedang diproses, kurang lebih 2 hari kerja. Informasi akan disampaikan melalui email, mohon cek email Anda secara berkala.",
-  api_req_back: "Kembali ke Data API",
+  api_req_back: "Kembali ke Dokumentasi API",
   api_req_error: "Gagal mengirim permohonan, coba lagi.",
   api_h1: "Akses Data via API",
   api_sub: "Ambil data Dashboard Bandung secara terprogram untuk aplikasi, riset, atau integrasi sistem Anda.",
@@ -589,6 +589,10 @@ export const I18N = {
   footer_contact_title: "Kontak",
   footer_rights: "© 2026 Dinas Komunikasi dan Informatika Kota Bandung",
   footer_disclaimer: "Data ilustratif — menunggu integrasi data resmi.",
+  footer_terms_title: "Ketentuan Pengguna",
+  footer_privacy_title: "Kebijakan Privasi",
+  legal_terms_h1: "Ketentuan Penggunaan Dashboard Bandung",
+  legal_privacy_h1: "Kebijakan Privasi Dashboard Bandung",
 };
 
 export type I18nKey = keyof typeof I18N;

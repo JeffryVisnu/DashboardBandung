@@ -185,6 +185,16 @@ router.post("/site-settings/logo", logoUpload.single("logo"), asyncRoute(async (
   res.json(updated);
 }));
 
+// POST /api/admin/site-settings/footer-logo — unggah logo footer (terpisah dari logo header)
+router.post("/site-settings/footer-logo", logoUpload.single("logo"), asyncRoute(async (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ error: "File logo wajib disertakan (field 'logo')." });
+    return;
+  }
+  const updated = await siteSettings.updateFooterLogoPath(`/uploads/${req.file.filename}`);
+  res.json(updated);
+}));
+
 // ─── Sektor & dataset ──────────────────────────────────────────────────────────
 
 router.post("/sectors", asyncRoute(async (req, res) => {

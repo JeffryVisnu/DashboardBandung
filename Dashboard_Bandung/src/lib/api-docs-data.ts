@@ -20,8 +20,8 @@ export const API_DOCS: ApiSectorDocs[] = [
     endpoints: [
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-smp/summary",
-        dashboardSlug: "jumlah-smp",
+        path: "/v1/pendidikan/dashboard-sekolah-menengah-pertama/summary",
+        dashboardSlug: "dashboard-sekolah-menengah-pertama",
         summary: "Ringkasan SMP Kota Bandung",
         description: "Jumlah sekolah, peserta didik, guru, serta rata-rata guru dan peserta didik per sekolah.",
         queryParams: PERIOD_PARAMS,
@@ -40,8 +40,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-smp/trend",
-        dashboardSlug: "jumlah-smp",
+        path: "/v1/pendidikan/dashboard-sekolah-menengah-pertama/trend",
+        dashboardSlug: "dashboard-sekolah-menengah-pertama",
         summary: "Tren Jumlah Peserta Didik SMP",
         description: "Jumlah peserta didik SMP per tahun ajaran (2020–2024).",
         exampleResponse: `{
@@ -55,8 +55,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-smp/sekolah-per-kecamatan",
-        dashboardSlug: "jumlah-smp",
+        path: "/v1/pendidikan/dashboard-sekolah-menengah-pertama/sekolah-per-kecamatan",
+        dashboardSlug: "dashboard-sekolah-menengah-pertama",
         summary: "Sekolah Negeri & Swasta per Kecamatan",
         description: "Jumlah SMP negeri dan swasta di tiap kecamatan Kota Bandung.",
         queryParams: PERIOD_PARAMS,
@@ -70,8 +70,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-smp/guru-siswa-per-kecamatan",
-        dashboardSlug: "jumlah-smp",
+        path: "/v1/pendidikan/dashboard-sekolah-menengah-pertama/guru-siswa-per-kecamatan",
+        dashboardSlug: "dashboard-sekolah-menengah-pertama",
         summary: "Guru & Peserta Didik per Kecamatan",
         description: "Jumlah guru dan peserta didik SMP di tiap kecamatan.",
         queryParams: PERIOD_PARAMS,
@@ -85,8 +85,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-smp/siswa-gender",
-        dashboardSlug: "jumlah-smp",
+        path: "/v1/pendidikan/dashboard-sekolah-menengah-pertama/siswa-gender",
+        dashboardSlug: "dashboard-sekolah-menengah-pertama",
         summary: "Komposisi Peserta Didik per Jenis Kelamin",
         description: "Total peserta didik SMP Kota Bandung berdasarkan jenis kelamin (laki-laki/perempuan).",
         queryParams: PERIOD_PARAMS,
@@ -100,8 +100,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-smp/sebaran-sekolah",
-        dashboardSlug: "jumlah-smp",
+        path: "/v1/pendidikan/dashboard-sekolah-menengah-pertama/sebaran-sekolah",
+        dashboardSlug: "dashboard-sekolah-menengah-pertama",
         summary: "Sebaran Sekolah per Kecamatan",
         description: "Sama seperti sekolah-per-kecamatan, bisa difilter status sekolah.",
         queryParams: [
@@ -119,8 +119,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       // ─── SD — sejajar dengan endpoint SMP di atas, tabel sumbernya sd_* ─────────
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-sd/summary",
-        dashboardSlug: "jumlah-sd",
+        path: "/v1/pendidikan/dashboard-sekolah-dasar/summary",
+        dashboardSlug: "dashboard-sekolah-dasar",
         summary: "Ringkasan SD Kota Bandung",
         description: "Jumlah sekolah, peserta didik, guru, serta rata-rata guru dan peserta didik per sekolah — data SD.",
         queryParams: PERIOD_PARAMS,
@@ -139,8 +139,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-sd/trend",
-        dashboardSlug: "jumlah-sd",
+        path: "/v1/pendidikan/dashboard-sekolah-dasar/trend",
+        dashboardSlug: "dashboard-sekolah-dasar",
         summary: "Tren Jumlah Peserta Didik SD",
         description: "Jumlah peserta didik SD per tahun ajaran.",
         exampleResponse: `{
@@ -154,8 +154,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-sd/sekolah-per-kecamatan",
-        dashboardSlug: "jumlah-sd",
+        path: "/v1/pendidikan/dashboard-sekolah-dasar/sekolah-per-kecamatan",
+        dashboardSlug: "dashboard-sekolah-dasar",
         summary: "Sekolah Negeri & Swasta per Kecamatan (SD)",
         description: "Jumlah SD negeri dan swasta di tiap kecamatan Kota Bandung.",
         queryParams: PERIOD_PARAMS,
@@ -169,8 +169,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-sd/guru-siswa-per-kecamatan",
-        dashboardSlug: "jumlah-sd",
+        path: "/v1/pendidikan/dashboard-sekolah-dasar/guru-siswa-per-kecamatan",
+        dashboardSlug: "dashboard-sekolah-dasar",
         summary: "Guru & Peserta Didik per Kecamatan (SD)",
         description: "Jumlah guru dan peserta didik SD di tiap kecamatan.",
         queryParams: PERIOD_PARAMS,
@@ -184,8 +184,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-sd/siswa-gender",
-        dashboardSlug: "jumlah-sd",
+        path: "/v1/pendidikan/dashboard-sekolah-dasar/siswa-gender",
+        dashboardSlug: "dashboard-sekolah-dasar",
         summary: "Komposisi Peserta Didik per Jenis Kelamin (SD)",
         description: "Total peserta didik SD Kota Bandung berdasarkan jenis kelamin (laki-laki/perempuan).",
         queryParams: PERIOD_PARAMS,
@@ -199,8 +199,8 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
       {
         method: "GET",
-        path: "/v1/pendidikan/jumlah-sd/sebaran-sekolah",
-        dashboardSlug: "jumlah-sd",
+        path: "/v1/pendidikan/dashboard-sekolah-dasar/sebaran-sekolah",
+        dashboardSlug: "dashboard-sekolah-dasar",
         summary: "Sebaran Sekolah per Kecamatan (SD)",
         description: "Sama seperti sekolah-per-kecamatan (SD), bisa difilter status sekolah.",
         queryParams: [

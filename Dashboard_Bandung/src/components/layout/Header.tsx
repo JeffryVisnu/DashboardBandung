@@ -57,12 +57,6 @@ export function Header() {
             {navLink("/topik", isTopics, s.nav_topics)}
             {navLink("/data-api", pathname === "/data-api", s.nav_api)}
           </nav>
-          <Link
-            href="/eksekutif"
-            className="font-bold text-[11.5px] md:text-[13px] text-bd-blue bg-transparent border-[1.5px] border-bd-blue px-3.5 md:px-5 py-2 md:py-2.5 rounded-full cursor-pointer hover:bg-bd-blue hover:text-white transition-colors whitespace-nowrap"
-          >
-            {s.btn_exec}
-          </Link>
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}

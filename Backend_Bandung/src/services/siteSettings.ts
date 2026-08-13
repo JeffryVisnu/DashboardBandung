@@ -2,6 +2,7 @@ import { pool } from "../db.js";
 
 export interface SiteSettings {
   logoPath: string | null;
+  footerLogoPath: string | null;
   heroEyebrow: string;
   heroTitle: string;
   heroSub: string;
@@ -9,11 +10,14 @@ export interface SiteSettings {
   kpiArea: { label: string; value: string };
   kpiKec: { label: string; value: string };
   kpiKel: { label: string; value: string };
+  ketentuanPenggunaan: string;
+  kebijakanPrivasi: string;
 }
 
 function toSiteSettings(row: Record<string, unknown>): SiteSettings {
   return {
     logoPath: row.logo_path as string | null,
+    footerLogoPath: row.footer_logo_path as string | null,
     heroEyebrow: row.hero_eyebrow as string,
     heroTitle: row.hero_title as string,
     heroSub: row.hero_sub as string,
@@ -21,6 +25,8 @@ function toSiteSettings(row: Record<string, unknown>): SiteSettings {
     kpiArea: { label: row.kpi_area_label as string, value: row.kpi_area_val as string },
     kpiKec: { label: row.kpi_kec_label as string, value: row.kpi_kec_val as string },
     kpiKel: { label: row.kpi_kel_label as string, value: row.kpi_kel_val as string },
+    ketentuanPenggunaan: row.ketentuan_penggunaan as string,
+    kebijakanPrivasi: row.kebijakan_privasi as string,
   };
 }
 
@@ -42,6 +48,8 @@ const EDITABLE_COLUMNS: Record<string, string> = {
   kpiKecVal: "kpi_kec_val",
   kpiKelLabel: "kpi_kel_label",
   kpiKelVal: "kpi_kel_val",
+  ketentuanPenggunaan: "ketentuan_penggunaan",
+  kebijakanPrivasi: "kebijakan_privasi",
 };
 
 export async function updateSiteSettings(fields: Record<string, unknown>): Promise<SiteSettings> {
@@ -72,6 +80,14 @@ export async function updateSiteSettings(fields: Record<string, unknown>): Promi
 export async function updateLogoPath(logoPath: string): Promise<SiteSettings> {
   const result = await pool.query(
     `UPDATE site_settings SET logo_path = $1, updated_at = now() WHERE id = 1 RETURNING *`,
+    [logoPath]
+  );
+  return toSiteSettings(result.rows[0]);
+}
+
+export async function updateFooterLogoPath(logoPath: string): Promise<SiteSettings> {
+  const result = await pool.query(
+    `UPDATE site_settings SET footer_logo_path = $1, updated_at = now() WHERE id = 1 RETURNING *`,
     [logoPath]
   );
   return toSiteSettings(result.rows[0]);

@@ -8,6 +8,7 @@ export const BACKEND_ORIGIN = API_BASE.replace(/\/api\/?$/, "");
 
 export interface SiteSettings {
   logoPath: string | null;
+  footerLogoPath: string | null;
   heroEyebrow: string;
   heroTitle: string;
   heroSub: string;
@@ -15,10 +16,13 @@ export interface SiteSettings {
   kpiArea: { label: string; value: string };
   kpiKec: { label: string; value: string };
   kpiKel: { label: string; value: string };
+  ketentuanPenggunaan: string;
+  kebijakanPrivasi: string;
 }
 
 const FALLBACK: SiteSettings = {
   logoPath: "/assets/logo-diskominfo.jpg",
+  footerLogoPath: null,
   heroEyebrow: I18N.hero_eyebrow,
   heroTitle: I18N.hero_title,
   heroSub: I18N.hero_sub,
@@ -26,6 +30,8 @@ const FALLBACK: SiteSettings = {
   kpiArea: { label: I18N.kpi_area, value: I18N.kpi_area_val },
   kpiKec: { label: I18N.kpi_kec, value: I18N.kpi_kec_val },
   kpiKel: { label: I18N.kpi_kel, value: I18N.kpi_kel_val },
+  ketentuanPenggunaan: "",
+  kebijakanPrivasi: "",
 };
 
 /** Resolusi path logo relatif (mis. "/uploads/logo-xxx.jpg") jadi URL absolut ke backend. */

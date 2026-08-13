@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { I18N } from "@/lib/placeholder-data";
 import { resolveLogoSrc, type SiteSettings } from "@/lib/useSiteSettings";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 const TOKEN_STORAGE_KEY = "bd_admin_token";
@@ -102,6 +103,8 @@ export default function EksekutifPage() {
   const [siteSaved, setSiteSaved] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [footerLogoFile, setFooterLogoFile] = useState<File | null>(null);
+  const [uploadingFooterLogo, setUploadingFooterLogo] = useState(false);
 
   // Sektor & Dataset
   const [sectorList, setSectorList] = useState<SectorRow[] | null>(null);
@@ -181,6 +184,8 @@ export default function EksekutifPage() {
       kpiKecVal: siteSettings.kpiKec.value,
       kpiKelLabel: siteSettings.kpiKel.label,
       kpiKelVal: siteSettings.kpiKel.value,
+      ketentuanPenggunaan: siteSettings.ketentuanPenggunaan,
+      kebijakanPrivasi: siteSettings.kebijakanPrivasi,
     });
   }, [siteSettings]);
 
@@ -256,6 +261,25 @@ export default function EksekutifPage() {
       setLogoFile(null);
     } finally {
       setUploadingLogo(false);
+    }
+  }
+
+  async function uploadFooterLogo() {
+    if (!footerLogoFile) return;
+    setUploadingFooterLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append("logo", footerLogoFile);
+      const res = await fetch(`${API_BASE}/admin/site-settings/footer-logo`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const updated = await res.json();
+      setSiteSettings(updated);
+      setFooterLogoFile(null);
+    } finally {
+      setUploadingFooterLogo(false);
     }
   }
 
@@ -547,25 +571,52 @@ export default function EksekutifPage() {
           <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-6 p-5.5">
             <div className="font-bold text-[15px] text-white mb-4">{s.admin_site_settings_title}</div>
 
-            <div className="flex items-center gap-4 mb-5">
-              <img
-                src={resolveLogoSrc(siteSettings?.logoPath ?? null)}
-                alt="logo"
-                className="h-12 w-auto bg-white/10 rounded-lg px-2 py-1"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
-                className="text-[12px] text-white/70"
-              />
-              <button
-                onClick={uploadLogo}
-                disabled={!logoFile || uploadingLogo}
-                className="bg-bd-gold border-none text-bd-ink font-bold px-3.5 py-2 rounded-lg cursor-pointer text-[12px] disabled:opacity-50"
-              >
-                {uploadingLogo ? "…" : s.admin_upload_logo_btn}
-              </button>
+            <div className="mb-5">
+              <label className="block text-[11px] font-semibold text-white/60 mb-1.5">Logo Header</label>
+              <div className="flex items-center gap-4">
+                <img
+                  src={resolveLogoSrc(siteSettings?.logoPath ?? null)}
+                  alt="logo header"
+                  className="h-12 w-auto bg-white/10 rounded-lg px-2 py-1"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+                  className="text-[12px] text-white/70"
+                />
+                <button
+                  onClick={uploadLogo}
+                  disabled={!logoFile || uploadingLogo}
+                  className="bg-bd-gold border-none text-bd-ink font-bold px-3.5 py-2 rounded-lg cursor-pointer text-[12px] disabled:opacity-50"
+                >
+                  {uploadingLogo ? "…" : s.admin_upload_logo_btn}
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-[11px] font-semibold text-white/60 mb-1.5">Logo Footer</label>
+              <div className="flex items-center gap-4">
+                <img
+                  src={resolveLogoSrc(siteSettings?.footerLogoPath ?? null)}
+                  alt="logo footer"
+                  className="h-12 w-auto bg-white/10 rounded-lg px-2 py-1"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFooterLogoFile(e.target.files?.[0] ?? null)}
+                  className="text-[12px] text-white/70"
+                />
+                <button
+                  onClick={uploadFooterLogo}
+                  disabled={!footerLogoFile || uploadingFooterLogo}
+                  className="bg-bd-gold border-none text-bd-ink font-bold px-3.5 py-2 rounded-lg cursor-pointer text-[12px] disabled:opacity-50"
+                >
+                  {uploadingFooterLogo ? "…" : s.admin_upload_logo_btn}
+                </button>
+              </div>
             </div>
 
             {siteForm && (
@@ -604,6 +655,22 @@ export default function EksekutifPage() {
                     )}
                   </div>
                 ))}
+
+                <div className="md:col-span-2">
+                  <label className="block text-[11px] font-semibold text-white/60 mb-1">{s.footer_terms_title}</label>
+                  <RichTextEditor
+                    value={siteForm.ketentuanPenggunaan ?? ""}
+                    onChange={(html) => setSiteForm((prev) => ({ ...prev!, ketentuanPenggunaan: html }))}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-[11px] font-semibold text-white/60 mb-1">{s.footer_privacy_title}</label>
+                  <RichTextEditor
+                    value={siteForm.kebijakanPrivasi ?? ""}
+                    onChange={(html) => setSiteForm((prev) => ({ ...prev!, kebijakanPrivasi: html }))}
+                  />
+                </div>
 
                 <div className="md:col-span-2 flex items-center gap-3 mt-1">
                   <button
