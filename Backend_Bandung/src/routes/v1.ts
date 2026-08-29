@@ -4,6 +4,11 @@ import * as pendidikan from "../services/pendidikan.js";
 import * as sd from "../services/sd.js";
 import * as rumahSakit from "../services/rumahSakit.js";
 import * as kependudukan from "../services/kependudukan.js";
+import * as lingkungan from "../services/lingkungan.js";
+import * as infrastruktur from "../services/infrastruktur.js";
+import * as ekonomi from "../services/ekonomi.js";
+import * as sosial from "../services/sosial.js";
+import * as pajak from "../services/pajak.js";
 import * as sectorsService from "../services/sectors.js";
 
 const router = Router();
@@ -103,6 +108,53 @@ const BESPOKE_ENDPOINTS: Record<string, Record<string, Record<string, (req: Requ
       "luas-wilayah-per-kecamatan": async () => kependudukan.getLuasWilayahPerKecamatan(),
     },
   },
+  lingkungan: {
+    "pengelolaan-sampah-kebersihan-di-kota-bandung": {
+      summary: async (req) => lingkungan.getSummary(await lingkungan.resolveTahun(req.query.tahun)),
+      trend: async () => lingkungan.getTrend(),
+      "capaian-per-bulan": async (req) => lingkungan.getCapaianPerBulan(await lingkungan.resolveTahun(req.query.tahun)),
+      "produksi-per-jenis": async (req) => lingkungan.getProduksiPerJenis(await lingkungan.resolveTahun(req.query.tahun)),
+      "ritasi-per-bulan": async (req) => lingkungan.getRitasiPerBulan(await lingkungan.resolveTahun(req.query.tahun)),
+      "kompensasi-per-kategori": async (req) =>
+        lingkungan.getKompensasiPerKategori(await lingkungan.resolveTahun(req.query.tahun)),
+    },
+  },
+  infrastruktur: {
+    "kolam-retensi-aktif-di-kota-bandung": {
+      summary: async (req) => infrastruktur.getSummary(await infrastruktur.resolveTahun(req.query.tahun)),
+      trend: async () => infrastruktur.getTrend(),
+      "kolam-per-kecamatan": async (req) =>
+        infrastruktur.getKolamPerKecamatan(await infrastruktur.resolveTahun(req.query.tahun)),
+      "volume-per-kecamatan": async (req) =>
+        infrastruktur.getVolumePerKecamatan(await infrastruktur.resolveTahun(req.query.tahun)),
+      "sebaran-kolam": async (req) => infrastruktur.getSebaranKolam(await infrastruktur.resolveTahun(req.query.tahun)),
+    },
+  },
+  ekonomi: {
+    "perdagangan-aktivitas-ekonomi-kota-bandung": {
+      summary: async (req) => ekonomi.getSummary(await ekonomi.resolveTahun(req.query.tahun)),
+      "trend-ekspor": async () => ekonomi.getTrendEkspor(),
+      "pasar-per-jenis": async (req) => ekonomi.getPasarPerJenis(await ekonomi.resolveTahun(req.query.tahun)),
+      "trend-sertifikasi-halal": async () => ekonomi.getTrendSertifikasiHalal(),
+      "daftar-sertifikasi-halal": async (req) =>
+        ekonomi.getDaftarSertifikasiHalal(await ekonomi.resolveTahun(req.query.tahun)),
+    },
+  },
+  sosial: {
+    "kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung": {
+      summary: async (req) => sosial.getSummary(await sosial.resolveTahun(req.query.tahun)),
+      "trend-dtks": async () => sosial.getTrendDtks(),
+      "dtks-per-kecamatan": async (req) => sosial.getDtksPerKecamatan(await sosial.resolveTahun(req.query.tahun)),
+      "p3ke-per-kecamatan": async (req) => sosial.getP3kePerKecamatan(await sosial.resolveTahun(req.query.tahun)),
+    },
+  },
+  anggaran: {
+    "target-dan-realisasi-pajak-daerah-kota-bandung": {
+      summary: async (req) => pajak.getSummary(await pajak.resolveTahun(req.query.tahun)),
+      trend: async () => pajak.getTrend(),
+      "pajak-per-jenis": async (req) => pajak.getPajakPerJenis(await pajak.resolveTahun(req.query.tahun)),
+    },
+  },
 };
 
 // Label sumber data ditampilkan di field "meta.source" tiap respons bespoke — per sektor supaya
@@ -111,6 +163,11 @@ const BESPOKE_SOURCE_LABEL: Record<string, string> = {
   pendidikan: "Dinas Pendidikan Kota Bandung",
   kesehatan: "Dinas Kesehatan Kota Bandung",
   kependudukan: "Disdukcapil Kota Bandung",
+  lingkungan: "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung",
+  infrastruktur: "Dinas Perumahan, Kawasan Permukiman, dan Penataan Ruang Kota Bandung",
+  ekonomi: "Dinas Koperasi, UKM, dan Perdagangan Kota Bandung",
+  sosial: "Dinas Sosial Kota Bandung",
+  anggaran: "Badan Pengelolaan Pajak dan Retribusi Daerah Kota Bandung",
 };
 
 // GET /api/v1/sectors — daftar semua sektor Kota Bandung. Terdaftar sebelum /:sectorId supaya

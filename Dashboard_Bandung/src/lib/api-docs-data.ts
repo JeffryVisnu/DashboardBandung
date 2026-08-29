@@ -297,7 +297,81 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
     ],
   },
-  { sectorId: "ekonomi", endpoints: [] },
+  {
+    sectorId: "ekonomi",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/ekonomi/perdagangan-aktivitas-ekonomi-kota-bandung/summary",
+        dashboardSlug: "perdagangan-aktivitas-ekonomi-kota-bandung",
+        summary: "Ringkasan Ekonomi & Perdagangan Kota Bandung",
+        description: "Nilai ekspor non-migas, jumlah pasar modern, dan jumlah sertifikasi halal UMKM di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": { "tahun": 2025, "nilaiEksporUsd": 327113895.73, "jumlahPasarModern": 827, "jumlahSertifikasiHalal": 100 },
+  "meta": { "source": "Dinas Koperasi, UKM, dan Perdagangan Kota Bandung", "generatedAt": "2026-08-29T05:32:31.666Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/ekonomi/perdagangan-aktivitas-ekonomi-kota-bandung/trend-ekspor",
+        dashboardSlug: "perdagangan-aktivitas-ekonomi-kota-bandung",
+        summary: "Tren Nilai Ekspor Non-Migas",
+        description: "Nilai ekspor non-migas Kota Bandung (USD) per tahun, 2011–2025.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2011, "nilaiEksporUsd": 653590705.7 },
+    { "tahun": 2025, "nilaiEksporUsd": 327113895.73 }
+  ],
+  "meta": { "source": "Dinas Koperasi, UKM, dan Perdagangan Kota Bandung", "generatedAt": "2026-08-29T05:32:31.700Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/ekonomi/perdagangan-aktivitas-ekonomi-kota-bandung/pasar-per-jenis",
+        dashboardSlug: "perdagangan-aktivitas-ekonomi-kota-bandung",
+        summary: "Pasar Modern per Jenis",
+        description: "Jumlah pasar modern (minimarket, supermarket, hypermarket, dst.) berdasarkan jenisnya.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "jenis": "MINIMARKET", "jumlah": 718, "satuan": "UNIT" },
+    { "jenis": "SUPERMARKET", "jumlah": 83, "satuan": "UNIT" }
+  ],
+  "meta": { "source": "Dinas Koperasi, UKM, dan Perdagangan Kota Bandung", "generatedAt": "2026-08-29T05:32:31.885Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/ekonomi/perdagangan-aktivitas-ekonomi-kota-bandung/trend-sertifikasi-halal",
+        dashboardSlug: "perdagangan-aktivitas-ekonomi-kota-bandung",
+        summary: "Tren Sertifikasi Halal UMKM",
+        description: "Jumlah UMKM yang mendapat sertifikasi halal per tahun.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2017, "jumlahSertifikasi": 300 },
+    { "tahun": 2025, "jumlahSertifikasi": 100 }
+  ],
+  "meta": { "source": "Dinas Koperasi, UKM, dan Perdagangan Kota Bandung", "generatedAt": "2026-08-29T05:32:32.000Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/ekonomi/perdagangan-aktivitas-ekonomi-kota-bandung/daftar-sertifikasi-halal",
+        dashboardSlug: "perdagangan-aktivitas-ekonomi-kota-bandung",
+        summary: "Daftar UMKM Bersertifikasi Halal",
+        description: "Nama merk dan produk UMKM yang mendapat sertifikasi halal di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "namaMerk": "5LIMAFOODS", "produkDihasilkan": "BAKSO FROZEN" },
+    { "namaMerk": "6 JAGOAN", "produkDihasilkan": "TELOR ASIN" }
+  ],
+  "meta": { "source": "Dinas Koperasi, UKM, dan Perdagangan Kota Bandung", "generatedAt": "2026-08-29T05:32:32.100Z" }
+}`,
+      },
+    ],
+  },
   {
     sectorId: "kesehatan",
     endpoints: [
@@ -387,8 +461,268 @@ export const API_DOCS: ApiSectorDocs[] = [
       },
     ],
   },
-  { sectorId: "infrastruktur", endpoints: [] },
-  { sectorId: "lingkungan", endpoints: [] },
-  { sectorId: "anggaran", endpoints: [] },
-  { sectorId: "sosial", endpoints: [] },
+  {
+    sectorId: "infrastruktur",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/infrastruktur/kolam-retensi-aktif-di-kota-bandung/summary",
+        dashboardSlug: "kolam-retensi-aktif-di-kota-bandung",
+        summary: "Ringkasan Kolam Retensi Kota Bandung",
+        description: "Jumlah kolam retensi, jumlah kecamatan yang punya kolam, dan total volume tampungan.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": { "tahun": 2025, "jumlahKolam": 42, "jumlahKecamatan": 12, "totalVolumeMeterKubik": 0 },
+  "meta": { "source": "Dinas Perumahan, Kawasan Permukiman, dan Penataan Ruang Kota Bandung", "generatedAt": "2026-08-29T05:32:01.412Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/infrastruktur/kolam-retensi-aktif-di-kota-bandung/trend",
+        dashboardSlug: "kolam-retensi-aktif-di-kota-bandung",
+        summary: "Tren Jumlah Kolam Retensi",
+        description: "Jumlah kolam retensi aktif per tahun, 2020–2025.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2020, "jumlahKolam": 29 },
+    { "tahun": 2025, "jumlahKolam": 42 }
+  ],
+  "meta": { "source": "Dinas Perumahan, Kawasan Permukiman, dan Penataan Ruang Kota Bandung", "generatedAt": "2026-08-29T05:32:01.526Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/infrastruktur/kolam-retensi-aktif-di-kota-bandung/kolam-per-kecamatan",
+        dashboardSlug: "kolam-retensi-aktif-di-kota-bandung",
+        summary: "Kolam Retensi per Kecamatan",
+        description: "Jumlah kolam retensi di tiap kecamatan Kota Bandung.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "CIBIRU", "jumlahKolam": 19 },
+    { "kecamatan": "BUAHBATU", "jumlahKolam": 6 }
+  ],
+  "meta": { "source": "Dinas Perumahan, Kawasan Permukiman, dan Penataan Ruang Kota Bandung", "generatedAt": "2026-08-29T05:32:01.600Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/infrastruktur/kolam-retensi-aktif-di-kota-bandung/volume-per-kecamatan",
+        dashboardSlug: "kolam-retensi-aktif-di-kota-bandung",
+        summary: "Volume Tampungan per Kecamatan",
+        description: "Total volume tampungan kolam retensi (meter kubik) di tiap kecamatan. Catatan: data volume terbaru yang terekam sampai tahun 2024, satu tahun di belakang data jumlah kolam.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2024. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "CIBIRU", "volumeMeterKubik": 1327.12 }
+  ],
+  "meta": { "source": "Dinas Perumahan, Kawasan Permukiman, dan Penataan Ruang Kota Bandung", "generatedAt": "2026-08-29T05:32:01.700Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/infrastruktur/kolam-retensi-aktif-di-kota-bandung/sebaran-kolam",
+        dashboardSlug: "kolam-retensi-aktif-di-kota-bandung",
+        summary: "Sebaran Kolam Retensi",
+        description: "Daftar tiap kolam retensi lengkap nama, kecamatan, sub-DAS, dan nama sungai.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANTAPANI", "nama": "KOLAM RETENSI CIBODAS", "subDas": "SUB-DAS CIDURIAN", "namaSungai": "SUNGAI CICADAS", "jumlahKolam": 1 }
+  ],
+  "meta": { "source": "Dinas Perumahan, Kawasan Permukiman, dan Penataan Ruang Kota Bandung", "generatedAt": "2026-08-29T05:32:01.800Z" }
+}`,
+      },
+    ],
+  },
+  {
+    sectorId: "lingkungan",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/lingkungan/pengelolaan-sampah-kebersihan-di-kota-bandung/summary",
+        dashboardSlug: "pengelolaan-sampah-kebersihan-di-kota-bandung",
+        summary: "Ringkasan Pengelolaan Sampah Kota Bandung",
+        description: "Total sampah terangkut, total ritasi truk, total kompensasi dampak negatif, dan jumlah jenis sampah tercatat.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": { "tahun": 2025, "totalSampahTon": 338667.926, "totalRitasi": 57399, "totalKompensasiRupiah": 3400994445, "jumlahJenisSampah": 9 },
+  "meta": { "source": "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung", "generatedAt": "2026-08-29T05:28:02.474Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/lingkungan/pengelolaan-sampah-kebersihan-di-kota-bandung/trend",
+        dashboardSlug: "pengelolaan-sampah-kebersihan-di-kota-bandung",
+        summary: "Tren Jumlah Sampah Terangkut",
+        description: "Total sampah terangkut (ton) per tahun, 2017–2025.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2017, "totalSampahTon": 401933.497 },
+    { "tahun": 2025, "totalSampahTon": 338667.926 }
+  ],
+  "meta": { "source": "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung", "generatedAt": "2026-08-29T05:28:02.600Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/lingkungan/pengelolaan-sampah-kebersihan-di-kota-bandung/capaian-per-bulan",
+        dashboardSlug: "pengelolaan-sampah-kebersihan-di-kota-bandung",
+        summary: "Capaian Pengangkutan Sampah per Bulan",
+        description: "Jumlah sampah terangkut (ton) tiap bulan di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "bulan": "JANUARI", "jumlahSampahTon": 24519.712, "satuan": "TON" }
+  ],
+  "meta": { "source": "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung", "generatedAt": "2026-08-29T05:28:02.700Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/lingkungan/pengelolaan-sampah-kebersihan-di-kota-bandung/produksi-per-jenis",
+        dashboardSlug: "pengelolaan-sampah-kebersihan-di-kota-bandung",
+        summary: "Produksi Sampah per Jenis",
+        description: "Rata-rata produksi sampah harian (ton/hari) berdasarkan jenisnya (sisa makanan, plastik, kertas, dst.).",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "jenis": "SISA MAKANAN", "produksiSampah": 382.9939, "satuan": "TON/HARI" }
+  ],
+  "meta": { "source": "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung", "generatedAt": "2026-08-29T05:28:02.800Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/lingkungan/pengelolaan-sampah-kebersihan-di-kota-bandung/ritasi-per-bulan",
+        dashboardSlug: "pengelolaan-sampah-kebersihan-di-kota-bandung",
+        summary: "Ritasi Truk Sampah per Bulan",
+        description: "Jumlah rit (ritasi) truk pengangkut sampah tiap bulan di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "bulan": "JANUARI", "jumlahRitasi": 5182 }
+  ],
+  "meta": { "source": "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung", "generatedAt": "2026-08-29T05:28:02.900Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/lingkungan/pengelolaan-sampah-kebersihan-di-kota-bandung/kompensasi-per-kategori",
+        dashboardSlug: "pengelolaan-sampah-kebersihan-di-kota-bandung",
+        summary: "Kompensasi Dampak Pengelolaan Sampah",
+        description: "Total kompensasi (rupiah) yang dibayarkan ke masyarakat sekitar TPA, per kategori kompensasi.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kategori": "KOMPENSASI DAMPAK NEGATIF", "jumlahRupiah": 3400994445 }
+  ],
+  "meta": { "source": "Dinas Lingkungan Hidup dan Kebersihan Kota Bandung", "generatedAt": "2026-08-29T05:28:03.036Z" }
+}`,
+      },
+    ],
+  },
+  {
+    sectorId: "anggaran",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/anggaran/target-dan-realisasi-pajak-daerah-kota-bandung/summary",
+        dashboardSlug: "target-dan-realisasi-pajak-daerah-kota-bandung",
+        summary: "Ringkasan Target & Realisasi Pajak Daerah",
+        description: "Total target, total realisasi, persentase capaian, dan jumlah jenis pajak daerah di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": { "tahun": 2025, "totalTargetRupiah": 3052122426267, "totalRealisasiRupiah": 3379066179476, "persentaseCapaian": 110.71, "jumlahJenisPajak": 12 },
+  "meta": { "source": "Badan Pengelolaan Pajak dan Retribusi Daerah Kota Bandung", "generatedAt": "2026-08-29T05:32:43.648Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/anggaran/target-dan-realisasi-pajak-daerah-kota-bandung/trend",
+        dashboardSlug: "target-dan-realisasi-pajak-daerah-kota-bandung",
+        summary: "Tren Target & Realisasi Pajak",
+        description: "Total target dan realisasi pajak daerah (rupiah) per tahun, 2014–2025.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2014, "totalTargetRupiah": 1400000000000, "totalRealisasiRupiah": 1399488903872 }
+  ],
+  "meta": { "source": "Badan Pengelolaan Pajak dan Retribusi Daerah Kota Bandung", "generatedAt": "2026-08-29T05:32:43.700Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/anggaran/target-dan-realisasi-pajak-daerah-kota-bandung/pajak-per-jenis",
+        dashboardSlug: "target-dan-realisasi-pajak-daerah-kota-bandung",
+        summary: "Target & Realisasi per Jenis Pajak",
+        description: "Rincian target dan realisasi (rupiah) untuk tiap jenis pajak daerah (PBB, pajak hotel, pajak restoran, dst.) di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2025. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "jenis": "B P H T B", "targetRupiah": 537847874605, "realisasiRupiah": 691299811794 }
+  ],
+  "meta": { "source": "Badan Pengelolaan Pajak dan Retribusi Daerah Kota Bandung", "generatedAt": "2026-08-29T05:32:43.800Z" }
+}`,
+      },
+    ],
+  },
+  {
+    sectorId: "sosial",
+    endpoints: [
+      {
+        method: "GET",
+        path: "/v1/sosial/kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung/summary",
+        dashboardSlug: "kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung",
+        summary: "Ringkasan Kesejahteraan Sosial Kota Bandung",
+        description: "Total individu dalam DTKS, total individu P3KE, dan jumlah kecamatan tercakup di tahun terkait.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2024. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": { "tahun": 2024, "totalIndividuDtks": 759309, "jumlahKecamatan": 30, "totalIndividuP3ke": 60167 },
+  "meta": { "source": "Dinas Sosial Kota Bandung", "generatedAt": "2026-08-29T05:32:43.157Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/sosial/kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung/trend-dtks",
+        dashboardSlug: "kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung",
+        summary: "Tren Jumlah Individu DTKS",
+        description: "Total individu dalam Data Terpadu Kesejahteraan Sosial (DTKS) per tahun, 2021–2024.",
+        exampleResponse: `{
+  "data": [
+    { "tahun": 2021, "totalIndividu": 752936 },
+    { "tahun": 2024, "totalIndividu": 759309 }
+  ],
+  "meta": { "source": "Dinas Sosial Kota Bandung", "generatedAt": "2026-08-29T05:32:43.263Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/sosial/kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung/dtks-per-kecamatan",
+        dashboardSlug: "kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung",
+        summary: "DTKS per Kecamatan",
+        description: "Jumlah individu dalam DTKS di tiap kecamatan Kota Bandung.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2024. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "jumlahIndividu": 36911 }
+  ],
+  "meta": { "source": "Dinas Sosial Kota Bandung", "generatedAt": "2026-08-29T05:32:43.400Z" }
+}`,
+      },
+      {
+        method: "GET",
+        path: "/v1/sosial/kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung/p3ke-per-kecamatan",
+        dashboardSlug: "kemiskinan-ekstrem-kesejahteraan-sosial-di-kota-bandung",
+        summary: "P3KE per Kecamatan",
+        description: "Jumlah individu dalam Pendataan Percepatan Penghapusan Kemiskinan Ekstrem (P3KE) di tiap kecamatan. Catatan: data P3KE baru tersedia untuk tahun 2024.",
+        queryParams: [{ name: "tahun", required: false, desc: "Tahun data, mis. 2024. Default: tahun terbaru yang tersedia." }],
+        exampleResponse: `{
+  "data": [
+    { "kecamatan": "ANDIR", "jumlahIndividu": 3120 }
+  ],
+  "meta": { "source": "Dinas Sosial Kota Bandung", "generatedAt": "2026-08-29T05:32:43.500Z" }
+}`,
+      },
+    ],
+  },
 ];
