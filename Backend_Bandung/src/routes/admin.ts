@@ -10,9 +10,9 @@ import { requireAdmin } from "../middleware/requireAdmin.js";
 import * as siteSettings from "../services/siteSettings.js";
 import * as sectors from "../services/sectors.js";
 import * as apiRequests from "../services/apiRequests.js";
+import { JWT_SECRET } from "../config.js";
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET ?? "";
 
 const UPLOAD_DIR = "uploads";
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
