@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
 import { pool } from "../db.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
 import * as siteSettings from "../services/siteSettings.js";
@@ -14,14 +15,45 @@ import { JWT_SECRET } from "../config.js";
 
 const router = Router();
 
+// Maks. 10 percobaan login per IP tiap 15 menit — mencegah brute-force password admin.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Terlalu banyak percobaan login. Coba lagi dalam beberapa menit." },
+});
+
+// Hash dummy dipakai saat email tidak ditemukan, supaya bcrypt.compare tetap dijalankan dan
+// waktu respons konsisten dengan kasus email valid + password salah — mencegah enumerasi email
+// admin lewat timing side-channel (endpoint sama-sama balas 401 "Email atau password salah",
+// tapi tanpa ini responsnya jauh lebih cepat saat email tidak dikenal, karena bcrypt dilewati).
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(crypto.randomBytes(32).toString("hex"), 10);
+
 const UPLOAD_DIR = "uploads";
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+// `file.mimetype`/nama file dari client tidak bisa dipercaya (gampang dipalsukan lewat
+// multipart request) — jadi upload ditampung di memori dulu, isinya disniff dari magic bytes,
+// baru ditulis ke disk dengan ekstensi yang berasal dari tipe HASIL SNIFF, bukan klaim client.
+// Ini mencegah upload file .html/.js berkedok gambar yang lalu dieksekusi browser saat dibuka
+// langsung dari /uploads (stored XSS).
+const IMAGE_SIGNATURES: { ext: string; matches: (buf: Buffer) => boolean }[] = [
+  { ext: "png", matches: (b) => b.length >= 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 },
+  { ext: "jpg", matches: (b) => b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: "gif", matches: (b) => b.length >= 6 && b.toString("ascii", 0, 6).match(/^GIF8[79]a$/) !== null },
+  {
+    ext: "webp",
+    matches: (b) => b.length >= 12 && b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP",
+  },
+];
+
+function sniffImageExt(buffer: Buffer): string | null {
+  return IMAGE_SIGNATURES.find((sig) => sig.matches(buffer))?.ext ?? null;
+}
+
 const logoUpload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-    filename: (_req, file, cb) => cb(null, `logo-${crypto.randomBytes(8).toString("hex")}${path.extname(file.originalname)}`),
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -32,6 +64,18 @@ const logoUpload = multer({
   },
 });
 
+// Sniff tipe asli dari isi file, tulis ke disk sendiri (bukan lewat multer.diskStorage) supaya
+// ekstensi file yang tersimpan selalu berasal dari hasil sniff, bukan dari nama file klien.
+function saveValidatedImage(file: Express.Multer.File): string {
+  const ext = sniffImageExt(file.buffer);
+  if (!ext) {
+    throw Object.assign(new Error("File bukan gambar yang valid (PNG/JPG/GIF/WEBP)."), { statusCode: 400 });
+  }
+  const filename = `logo-${crypto.randomBytes(8).toString("hex")}.${ext}`;
+  fs.writeFileSync(path.join(UPLOAD_DIR, filename), file.buffer);
+  return filename;
+}
+
 // Membungkus handler async supaya kegagalan query dikembalikan sebagai response error,
 // bukan men-crash seluruh proses server (pola sama seperti asyncRoute di categories.ts).
 function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
@@ -39,6 +83,13 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
     try {
       await handler(req, res);
     } catch (err) {
+      // Error yang sengaja dilempar dengan statusCode (mis. validasi upload) dibalas apa
+      // adanya — jangan disamaratakan jadi "database error" seperti kegagalan tak terduga lain.
+      const statusCode = (err as { statusCode?: number }).statusCode;
+      if (statusCode) {
+        res.status(statusCode).json({ error: (err as Error).message });
+        return;
+      }
       console.error(err);
       res.status(503).json({ error: "Gagal terhubung ke database, coba lagi." });
     }
@@ -46,7 +97,7 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
 }
 
 // POST /api/admin/login — { email, password } → JWT
-router.post("/login", asyncRoute(async (req, res) => {
+router.post("/login", loginLimiter, asyncRoute(async (req, res) => {
   const { email, password } = req.body ?? {};
 
   if (typeof email !== "string" || typeof password !== "string") {
@@ -60,6 +111,7 @@ router.post("/login", asyncRoute(async (req, res) => {
   );
 
   if (result.rows.length === 0) {
+    await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
     res.status(401).json({ error: "Email atau password salah." });
     return;
   }
@@ -181,7 +233,8 @@ router.post("/site-settings/logo", logoUpload.single("logo"), asyncRoute(async (
     res.status(400).json({ error: "File logo wajib disertakan (field 'logo')." });
     return;
   }
-  const updated = await siteSettings.updateLogoPath(`/uploads/${req.file.filename}`);
+  const filename = saveValidatedImage(req.file);
+  const updated = await siteSettings.updateLogoPath(`/uploads/${filename}`);
   res.json(updated);
 }));
 
@@ -191,7 +244,8 @@ router.post("/site-settings/footer-logo", logoUpload.single("logo"), asyncRoute(
     res.status(400).json({ error: "File logo wajib disertakan (field 'logo')." });
     return;
   }
-  const updated = await siteSettings.updateFooterLogoPath(`/uploads/${req.file.filename}`);
+  const filename = saveValidatedImage(req.file);
+  const updated = await siteSettings.updateFooterLogoPath(`/uploads/${filename}`);
   res.json(updated);
 }));
 

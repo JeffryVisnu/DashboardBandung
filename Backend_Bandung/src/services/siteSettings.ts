@@ -1,4 +1,27 @@
+import sanitizeHtml from "sanitize-html";
 import { pool } from "../db.js";
+
+// ketentuanPenggunaan & kebijakanPrivasi ditulis lewat editor WYSIWYG (Tiptap) admin, tapi API
+// ini menerima string HTML mentah apa adanya di body request — tanpa allowlist ini, siapa pun
+// yang bisa PUT ke endpoint ini (mis. lewat token admin yang disalahgunakan) bisa menyimpan
+// <script>/onerror/dsb. yang lalu dirender apa adanya ke SEMUA pengunjung publik halaman legal.
+const LEGAL_HTML_FIELDS = new Set(["ketentuanPenggunaan", "kebijakanPrivasi"]);
+
+function sanitizeLegalHtml(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [
+      "p", "br", "strong", "em", "u", "s", "a", "ul", "ol", "li",
+      "h1", "h2", "h3", "h4", "blockquote", "hr", "code", "pre",
+    ],
+    allowedAttributes: {
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    transformTags: {
+      a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+    },
+  });
+}
 
 export interface SiteSettings {
   logoPath: string | null;
@@ -58,7 +81,8 @@ export async function updateSiteSettings(fields: Record<string, unknown>): Promi
 
   for (const [key, column] of Object.entries(EDITABLE_COLUMNS)) {
     if (typeof fields[key] === "string") {
-      params.push(fields[key]);
+      const value = LEGAL_HTML_FIELDS.has(key) ? sanitizeLegalHtml(fields[key]) : fields[key];
+      params.push(value);
       sets.push(`${column} = $${params.length}`);
     }
   }

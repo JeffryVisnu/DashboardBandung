@@ -194,9 +194,17 @@ router.get("/:sectorId/:dashboardSlug", asyncRoute(async (req, res) => {
 
 // GET /api/v1/:sectorId/:dashboardSlug/:endpoint — endpoint data bespoke milik 1 dashboard,
 // mis. /v1/pendidikan/jumlah-sd/summary, /v1/pendidikan/jumlah-smp/trend
+// Object.hasOwn (bukan optional-chaining biasa) supaya segmen URL seperti "constructor" atau
+// "__proto__" tidak ikut mengenai properti bawaan Object.prototype yang diwarisi oleh object
+// literal biasa (mis. /v1/constructor/prototype/toString sebelumnya balas 200 alih-alih 404).
+function safeLookup<T>(obj: Record<string, T> | undefined, key: string): T | undefined {
+  if (!obj || !Object.hasOwn(obj, key)) return undefined;
+  return obj[key];
+}
+
 router.get("/:sectorId/:dashboardSlug/:endpoint", asyncRoute(async (req, res) => {
   const { sectorId, dashboardSlug, endpoint } = req.params;
-  const handler = BESPOKE_ENDPOINTS[sectorId]?.[dashboardSlug]?.[endpoint];
+  const handler = safeLookup(safeLookup(safeLookup(BESPOKE_ENDPOINTS, sectorId), dashboardSlug), endpoint);
   if (!handler) {
     res.status(404).json({ error: "Endpoint tidak ditemukan." });
     return;

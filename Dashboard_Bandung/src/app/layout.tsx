@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="h-full">
+    <html lang="id" className="h-full" suppressHydrationWarning>
       <head>
         {/* Buka koneksi ke domain embed lebih awal (DNS+TLS) supaya iframe Looker
             Studio/Flourish di halaman dashboard tidak menunggu basa-basi jaringan
@@ -23,7 +23,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://public.flourish.studio" crossOrigin="" />
         <link rel="dns-prefetch" href="https://public.flourish.studio" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/* suppressHydrationWarning: ekstensi browser (Grammarly, Dark Reader, password
+          manager, dll.) sering menyuntik atribut ke <html>/<body> sebelum React sempat
+          hydrate, memicu warning mismatch palsu — bukan bug di kode ini. Ini HANYA
+          meredam warning atribut di elemen ini sendiri, bukan mematikan pengecekan
+          hydration di seluruh app. */}
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>{children}</body>
     </html>
   );
 }

@@ -16,7 +16,9 @@ export async function getSummary(tahun: number, semester: number) {
     `SELECT COUNT(*) AS "jumlahSekolah",
             COALESCE(SUM(jumlah_siswa), 0) AS "jumlahSiswa",
             COALESCE(SUM(jumlah_guru), 0) AS "jumlahGuru"
-     FROM view_smp_sekolah_bersih`
+     FROM view_smp_sekolah_bersih
+     WHERE tahun = $1 AND semester_ajaran = $2`,
+    [tahun, semester]
   );
 
   const jumlahSekolah = Number(result.rows[0].jumlahSekolah);
